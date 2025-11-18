@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตัวสร้างรีพอร์ต (v16.1)</title>
+    <style>
+        /* --- CSS พื้นฐาน (ใช้กับทุกหน้าจอ) --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 800px; 
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box; 
+            font-size: 16px;
+            font-family: inherit;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical; 
+        }
+        
+        /* ปุ่มหลัก */
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+        button#copyButton {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px; 
+        }
+        button#copyButton:hover {
+            background-color: #0056b3;
+        }
+
+        button#addTaskButton {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px; 
+        }
+        button#addTaskButton:hover {
+            background-color: #218838;
+        }
+
+        /* --- จัดการ Layout ของ Task List (Desktop Default) --- */
+        .task-list-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        .task-list-header .detail-header { flex: 4; }
+        .task-list-header .status-header { flex: 2; }
+        .task-list-header .remark-header { flex: 3; }
+        .task-list-header .action-header { width: 50px; text-align: center; } 
+
+        .task-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .task-row .task-detail { flex: 4; }
+        .task-row .task-status { flex: 2; }
+        .task-row .task-remark { flex: 3; }
+
+        button.remove-task-button {
+            width: 50px;
+            padding: 12px 0;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        button.remove-task-button:hover {
+            background-color: #c82333;
+        }
+
+        /* --- 📱 MEDIA QUERY: สำหรับมือถือ (หน้าจอกว้างไม่เกิน 600px) --- */
+        @media (max-width: 600px) {
+            .task-list-header {
+                display: none;
+            }
+
+            .task-row {
+                display: flex;
+                flex-direction: column; 
+                gap: 8px;
+                background-color: #f8f9fa; 
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+                margin-bottom: 15px;
+            }
+
+            .task-row .task-detail, 
+            .task-row .task-status, 
+            .task-row .task-remark {
+                width: 100%;
+                flex: none; 
+            }
+
+            button.remove-task-button {
+                width: 100%;
+                margin-top: 5px;
+                background-color: #ff4d4d;
+                color: white;
+                padding: 10px;
+            }
+        }
+        
+        #output {
+            background-color: #e9ecef;
+            border: 1px dashed #aaa;
+            min-height: 150px;
+            white-space: pre-wrap; 
+            font-family: inherit; 
+            font-size: 14px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
+
+        <div class="form-group">
+            <label for="workBom">Work BOM</label> 
+            <input type="text" id="workBom" placeholder="WB-S2500-0000-A">
+        </div>
+
+        <div class="form-group">
+            <label for="projectName">ชื่อ Project</label>
+            <input type="text" id="projectName" placeholder="PROJECT MACHINE">
+        </div>
+
+        <div class="form-group">
+            <label>รายละเอียดงาน (Detail)</label>
+            
+            <div class="task-list-header">
+                <div class="detail-header">Detail</div>
+                <div class="status-header">Status</div>
+                <div class="remark-header">Remark</div>
+                <div class="action-header">ลบ</div>
+            </div>
+
+            <div id="task-list">
+                </div>
+
+            <button type="button" id="addTaskButton">➕ เพิ่มรายการงาน</button>
+        </div>
+
+        <div class="form-group">
+            <label for="problems">📌 ปัญหา (Problems)</label> 
+            <textarea id="problems" rows="4" placeholder="1._&#10;2._"></textarea>
+        </div>
+
+        <button id="copyButton">สร้างและคัดลอก (Generate & Copy)</button>
+
+        <div class="form-group">
+            <label>ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
+            <textarea id="output" rows="10" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        // === JavaScript ===
+        const taskList = document.getElementById('task-list');
+        const addTaskButton = document.getElementById('addTaskButton');
+
+        function createNewTaskRow() {
+            const newRow = document.createElement('div');
+            newRow.className = 'task-row';
+            
+            newRow.innerHTML = `
+                <input type="text" class="task-detail" placeholder="รายละเอียดงาน (Detail)...">
+                <select class="task-status" aria-label="Status">
+                    <option value="OK">Status: OK</option>
+                    <option value="Pending">Status: Pending</option>
+                    <option value="In Progress">Status: In Progress</option>
+                    <option value="Waiting">Status: Waiting</option>
+                    <option value="NG">Status: NG</option>
+                    <option value="-">Status: -</option>
+                </select>
+                <input type="text" class="task-remark" placeholder="หมายเหตุ/Remark (ถ้ามี)">
+                <button type="button" class="remove-task-button">ลบ</button> `;
+            taskList.appendChild(newRow);
+        }
+        addTaskButton.addEventListener('click', createNewTaskRow);
+        taskList.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-task-button')) {
+                e.target.closest('.task-row').remove();
+            }
+        });
+        
+        createNewTaskRow();
+
+        
+        // === JavaScript สำหรับการคัดลอก (v15 Logic) ===
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const workBom = document.getElementById('workBom').value.trim();
+            const projectName = document.getElementById('projectName').value.trim();
+            const problems = document.getElementById('problems').value.trim();
+
+            const parts = [];
+            const longSeparator = '------------------------------'; 
+
+            if (workBom) parts.push(`🔖 Work BOM : ${workBom}`);
+            if (projectName) parts.push(`🏷️ Project : ${projectName}`);
+            if (workBom || projectName) parts.push(`${longSeparator}`); 
+            
+            parts.push('✅ **รายละเอียดงาน**');
+            
+            const taskRows = document.querySelectorAll('#task-list .task-row');
+            
+            if (taskRows.length > 0) {
+                let hasTasks = false;
+                taskRows.forEach((row, i) => { 
+                    const detail = row.querySelector('.task-detail').value.trim();
+                    
+                    const statusSelect = row.querySelector('.task-status');
+                    const status = statusSelect.value; 
+                    
+                    const remark = row.querySelector('.task-remark').value.trim();
+
+                    if (detail) {
+                        hasTasks = true;
+                        const taskNumber = i + 1; 
+                        
+                        parts.push(`${taskNumber}. ${detail}`); 
+                        parts.push(`   🚦 Status: ${status}`); 
+                        
+                        if (remark && remark !== '-') {
+                            parts.push(`   💬 Remark: ${remark}`); 
+                        }
+                    }
+                });
+                if (!hasTasks) parts.push('- ไม่มีรายการ -');
+            } else {
+                parts.push('- ไม่มีรายการ -');
+            }
+            
+            if (problems) {
+                parts.push(`${longSeparator}`); 
+                parts.push('📌 **ปัญหา**');
+                parts.push(problems);
+            }
+
+            const reportText = parts.join('\n').trim(); 
+            const outputArea = document.getElementById('output');
+            outputArea.value = reportText;
+
+            navigator.clipboard.writeText(reportText).then(() => {
+                const button = document.getElementById('copyButton');
+                button.innerText = 'คัดลอกแล้ว! (Copied!) ✅';
+                button.style.backgroundColor = '#28a745'; 
+
+                setTimeout(() => {
+                    button.innerText = 'สร้างและคัดลอก (Generate & Copy)';
+                    button.style.backgroundColor = '#007bff';
+                }, 2000);
+            }).catch(err => {
+                console.error('คัดลอกไม่สำเร็จ: ', err);
+                alert('การคัดลอกไม่สำเร็จ กรุณาลองอีกครั้ง');
+            });
+        });
+    </script>
+
+</body>
+</html>
