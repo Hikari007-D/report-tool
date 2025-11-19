@@ -5,35 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ตัวสร้างรีพอร์ต</title>
     <style>
+        /* --- CSS Variables (สำหรับจัดการสี) --- */
+        :root {
+            --bg-color: #f4f7f6;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --input-bg: #fff;
+            --input-border: #ddd;
+            --input-text: #333;
+            --header-color: #0056b3;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --task-bg: transparent;
+            --output-bg: #f8f9fa;
+            --modal-bg: #fff;
+        }
+
+        /* 🌙 Dark Mode Theme */
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --input-bg: #2d2d2d;
+            --input-border: #404040;
+            --input-text: #e0e0e0;
+            --header-color: #64b5f6;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --task-bg: #2d2d2d;
+            --output-bg: #2d2d2d;
+            --modal-bg: #2d2d2d;
+        }
+
         /* --- CSS พื้นฐาน --- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             padding: 15px;
-            background-color: #f4f7f6;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             max-width: 800px; 
             margin: 0 auto;
-            background-color: #ffffff;
+            background-color: var(--container-bg);
             padding: 20px;
-            border-radius: 12px; /* โค้งมนขึ้น */
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px var(--shadow);
+            transition: background-color 0.3s;
+            position: relative;
         }
+        
+        /* 🌓 ปุ่ม Toggle Dark Mode */
+        .theme-switch-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .theme-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        .theme-btn:hover { background-color: rgba(128,128,128,0.2); }
+
         h1 {
             text-align: center;
-            color: #0056b3;
+            color: var(--header-color);
             margin-bottom: 20px;
             font-size: 24px;
             font-weight: 700;
         }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; color: #444; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text-color); opacity: 0.9; }
         
         input[type="text"], textarea, select {
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit;
-            transition: border-color 0.2s;
+            width: 100%; padding: 12px; 
+            border: 1px solid var(--input-border); 
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit;
+            transition: border-color 0.2s, background-color 0.3s;
         }
         input[type="text"]:focus, textarea:focus, select:focus {
             border-color: #007bff; outline: none;
@@ -48,12 +105,18 @@
             box-shadow: 0 4px 6px rgba(0,123,255,0.2);
         }
         button#copyButton:hover { background-color: #0062cc; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,123,255,0.3); }
-        button#copyButton:active { transform: translateY(1px); }
 
-        button#resetButton {
-            width: 100%; padding: 10px; background-color: #f1f3f5; color: #dc3545; border-radius: 8px; font-size: 15px; font-weight: 600; margin-bottom: 20px;
+        .action-buttons {
+            display: flex; gap: 10px; margin-bottom: 20px;
         }
-        button#resetButton:hover { background-color: #ffe3e3; }
+        button.secondary-btn {
+            flex: 1; padding: 10px; border-radius: 8px; font-size: 15px; font-weight: 600;
+        }
+        button#clearTasksBtn { background-color: #ffc107; color: #212529; }
+        button#clearTasksBtn:hover { background-color: #e0a800; }
+        
+        button#resetAllBtn { background-color: #f1f3f5; color: #dc3545; }
+        button#resetAllBtn:hover { background-color: #ffe3e3; }
 
         button#addTaskButton {
             width: 100%; padding: 12px; background-color: #28a745; color: white; border-radius: 8px; font-size: 16px; font-weight: 600; margin-top: 10px; 
@@ -61,7 +124,7 @@
         button#addTaskButton:hover { background-color: #218838; }
 
         /* Layout Task */
-        .task-list-header { display: flex; gap: 10px; margin-bottom: 8px; font-weight: 600; color: #666; font-size: 14px; }
+        .task-list-header { display: flex; gap: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-color); opacity: 0.8; font-size: 14px; }
         .task-list-header .detail-header { flex: 4; }
         .task-list-header .status-header { flex: 2; }
         .task-list-header .remark-header { flex: 3; }
@@ -72,11 +135,17 @@
         .task-row .task-status { flex: 2; }
         .task-row .task-remark { flex: 3; }
 
-        /* ✨ Status Colors Classes */
+        /* Status Colors */
         .task-status.status-ok { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
         .task-status.status-ng { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         .task-status.status-pending { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
         .task-status.status-waiting { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+        
+        /* Fix Status Colors in Dark Mode */
+        [data-theme="dark"] .task-status.status-ok { background-color: #1b4d2e; color: #d4edda; border-color: #2e7d32; }
+        [data-theme="dark"] .task-status.status-ng { background-color: #4d1b1b; color: #f8d7da; border-color: #c62828; }
+        [data-theme="dark"] .task-status.status-pending { background-color: #4d3e0b; color: #fff3cd; border-color: #f9a825; }
+        [data-theme="dark"] .task-status.status-waiting { background-color: #0b3d4d; color: #d1ecf1; border-color: #0277bd; }
 
         button.remove-task-button {
             width: 50px; padding: 12px 0; background-color: #ff6b6b; color: white; border-radius: 8px; font-size: 14px;
@@ -85,33 +154,43 @@
 
         @media (max-width: 600px) {
             .task-list-header { display: none; }
-            .task-row { flex-direction: column; gap: 10px; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e9ecef; margin-bottom: 15px; }
+            .task-row { flex-direction: column; gap: 10px; background-color: var(--task-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--input-border); margin-bottom: 15px; }
             .task-row .task-detail, .task-row .task-status, .task-row .task-remark { width: 100%; flex: none; }
             button.remove-task-button { width: 100%; margin-top: 5px; background-color: #ff6b6b; color: white; padding: 10px; }
         }
         
-        #output { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; min-height: 150px; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: #444; }
+        #output { 
+            background-color: var(--output-bg); 
+            border: 1px solid var(--input-border); 
+            border-radius: 8px; 
+            min-height: 150px; 
+            white-space: pre-wrap; 
+            font-family: monospace; 
+            font-size: 14px; 
+            color: var(--input-text);
+        }
 
-        /* --- ✨ Custom Modal (Reset) --- */
+        /* --- Modal --- */
         .modal-overlay {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);
             justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
         }
         .modal-content {
-            background-color: white; padding: 30px; border-radius: 16px; width: 85%; max-width: 350px; text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background-color: var(--modal-bg); padding: 30px; border-radius: 16px; width: 85%; max-width: 350px; text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            color: var(--text-color);
         }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #333; }
-        .modal-desc { color: #666; margin-bottom: 25px; line-height: 1.5; font-size: 15px; }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+        .modal-desc { margin-bottom: 25px; line-height: 1.5; font-size: 15px; opacity: 0.8; }
         .modal-buttons { display: flex; gap: 10px; justify-content: center; }
         .btn-confirm { padding: 12px 20px; background-color: #fa5252; color: white; border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
-        .btn-cancel { padding: 12px 20px; background-color: #e9ecef; color: #495057; border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
+        .btn-cancel { padding: 12px 20px; background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
 
-        /* --- ✨ Toast Notification (แจ้งเตือน Copy) --- */
+        /* Toast */
         #toast {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px;
             padding: 16px; position: fixed; z-index: 1001; left: 50%; bottom: 30px; transform: translateX(-50%);
@@ -119,12 +198,15 @@
             opacity: 0; transition: opacity 0.3s, bottom 0.3s;
         }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-
     </style>
 </head>
 <body>
 
     <div class="container">
+        <div class="theme-switch-wrapper">
+            <button class="theme-btn" id="themeToggle" title="เปลี่ยนโหมดมืด/สว่าง">🌓</button>
+        </div>
+
         <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
 
         <div class="form-group">
@@ -156,7 +238,10 @@
 
         <button id="copyButton">📋 สร้างและคัดลอก (Generate & Copy)</button>
         
-        <button id="resetButton">🗑️ ล้างข้อมูล (Reset)</button>
+        <div class="action-buttons">
+            <button id="clearTasksBtn" class="secondary-btn">🧹 ล้างเฉพาะงาน</button>
+            <button id="resetAllBtn" class="secondary-btn">🗑️ ล้างทั้งหมด</button>
+        </div>
 
         <div class="form-group">
             <label>ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
@@ -166,12 +251,12 @@
 
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
-            <span class="modal-icon">🗑️</span>
-            <div class="modal-title">ล้างข้อมูลทั้งหมด?</div>
-            <div class="modal-desc">ข้อมูลที่คุณกรอกจะหายไปทั้งหมด<br>ต้องการเริ่มใหม่ใช่หรือไม่?</div>
+            <span class="modal-icon" id="modalIcon">🗑️</span>
+            <div class="modal-title" id="modalTitle">ยืนยัน?</div>
+            <div class="modal-desc" id="modalDesc">รายละเอียด...</div>
             <div class="modal-buttons">
                 <button id="cancelModalBtn" class="btn-cancel">ยกเลิก</button>
-                <button id="confirmModalBtn" class="btn-confirm">ล้างเลย</button>
+                <button id="confirmModalBtn" class="btn-confirm">ยืนยัน</button>
             </div>
         </div>
     </div>
@@ -179,16 +264,35 @@
     <div id="toast">✅ คัดลอกเรียบร้อยพร้อมวาง!</div>
 
     <script>
+        // --- Variables ---
         const taskList = document.getElementById('task-list');
         const addTaskButton = document.getElementById('addTaskButton');
-        const resetButton = document.getElementById('resetButton');
+        const resetAllBtn = document.getElementById('resetAllBtn');
+        const clearTasksBtn = document.getElementById('clearTasksBtn'); // ปุ่มใหม่
+        const themeToggle = document.getElementById('themeToggle'); // ปุ่ม Dark Mode
         
         // Modal Elements
         const modal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
         const confirmModalBtn = document.getElementById('confirmModalBtn');
         const cancelModalBtn = document.getElementById('cancelModalBtn');
         const toast = document.getElementById('toast');
+        
+        let pendingAction = null; // ตัวแปรเก็บว่ากดปุ่มไหนมา (Reset All หรือ Clear Tasks)
 
+        // --- Dark Mode Logic ---
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // --- Task Functions ---
         function createNewTaskRow(detailVal = '', statusVal = 'OK', remarkVal = '') {
             const newRow = document.createElement('div');
             newRow.className = 'task-row';
@@ -206,13 +310,9 @@
                 <button type="button" class="remove-task-button">ลบ</button>
             `;
             
-            // Event Listener: Update Color & Save
             const statusSelect = newRow.querySelector('.task-status');
-            updateStatusColor(statusSelect); // Set initial color
-            statusSelect.addEventListener('change', function() {
-                updateStatusColor(this);
-                saveData();
-            });
+            updateStatusColor(statusSelect); 
+            statusSelect.addEventListener('change', function() { updateStatusColor(this); saveData(); });
 
             const inputs = newRow.querySelectorAll('input');
             inputs.forEach(input => input.addEventListener('input', saveData));
@@ -220,21 +320,16 @@
             taskList.appendChild(newRow);
         }
 
-        // ✨ ฟังก์ชันเปลี่ยนสีตาม Status
         function updateStatusColor(selectElement) {
-            // Reset classes
             selectElement.classList.remove('status-ok', 'status-ng', 'status-pending', 'status-waiting');
-            
             const val = selectElement.value;
             if(val === 'OK') selectElement.classList.add('status-ok');
             else if(val === 'NG') selectElement.classList.add('status-ng');
-            else if(val === 'Pending') selectElement.classList.add('status-pending');
-            else if(val === 'In Progress') selectElement.classList.add('status-pending');
+            else if(val === 'Pending' || val === 'In Progress') selectElement.classList.add('status-pending');
             else if(val === 'Waiting') selectElement.classList.add('status-waiting');
         }
 
         addTaskButton.addEventListener('click', () => { createNewTaskRow(); saveData(); });
-
         taskList.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('remove-task-button')) {
                 e.target.closest('.task-row').remove();
@@ -272,22 +367,46 @@
             } else { createNewTaskRow(); }
         }
 
-        // --- Modal Logic ---
-        resetButton.addEventListener('click', () => modal.classList.add('active'));
+        // --- Modal & Action Logic ---
+        function openModal(actionType) {
+            pendingAction = actionType;
+            modal.classList.add('active');
+            
+            if (actionType === 'resetAll') {
+                modalTitle.innerText = 'ล้างข้อมูลทั้งหมด?';
+                modalDesc.innerHTML = 'BOM, Project, และงานทั้งหมดจะหายไป<br>ต้องการเริ่มใหม่ใช่หรือไม่?';
+            } else if (actionType === 'clearTasks') {
+                modalTitle.innerText = 'ล้างเฉพาะงาน?';
+                modalDesc.innerHTML = 'เลข BOM และชื่อ Project จะยังอยู่<br>แต่รายการงานและปัญหาจะถูกลบ';
+            }
+        }
+
+        resetAllBtn.addEventListener('click', () => openModal('resetAll'));
+        clearTasksBtn.addEventListener('click', () => openModal('clearTasks'));
         cancelModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+        
         confirmModalBtn.addEventListener('click', function() {
-            document.getElementById('workBom').value = '';
-            document.getElementById('projectName').value = '';
-            document.getElementById('problems').value = '';
-            taskList.innerHTML = '';
-            createNewTaskRow();
+            if (pendingAction === 'resetAll') {
+                document.getElementById('workBom').value = '';
+                document.getElementById('projectName').value = '';
+                document.getElementById('problems').value = '';
+                taskList.innerHTML = '';
+                createNewTaskRow();
+            } else if (pendingAction === 'clearTasks') {
+                // ลบแค่ Task กับ Problems แต่เก็บ BOM/Project ไว้
+                document.getElementById('problems').value = '';
+                taskList.innerHTML = '';
+                createNewTaskRow();
+            }
+            
             saveData();
             document.getElementById('output').value = '';
             modal.classList.remove('active');
         });
+        
         modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
 
-        // Load Data
+        // Init
         document.getElementById('workBom').addEventListener('input', saveData);
         document.getElementById('projectName').addEventListener('input', saveData);
         document.getElementById('problems').addEventListener('input', saveData);
@@ -301,11 +420,9 @@
             const parts = [];
             const longSeparator = '------------------------------'; 
             
-            // ✨ เพิ่มวันที่ปัจจุบันแบบไทย
             const now = new Date();
             const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
             
-            // ใส่หัวข้อ
             parts.push(`📅 รายงานวันที่: ${dateStr}`);
             if (workBom) parts.push(`🔖 Work BOM : ${workBom}`);
             if (projectName) parts.push(`🏷️ Project : ${projectName}`);
@@ -343,14 +460,13 @@
             outputArea.value = reportText;
 
             navigator.clipboard.writeText(reportText).then(() => {
-                showToast(); // ✨ เรียก Toast notification
+                showToast();
             }).catch(err => {
                 console.error('Copy failed', err);
                 alert('Copy Error');
             });
         });
 
-        // ✨ ฟังก์ชันแสดง Toast
         function showToast() {
             toast.className = "show";
             setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
