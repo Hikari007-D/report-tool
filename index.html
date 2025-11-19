@@ -18,146 +18,107 @@
             margin: 0 auto;
             background-color: #ffffff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px; /* โค้งมนขึ้น */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         }
         h1 {
             text-align: center;
             color: #0056b3;
             margin-bottom: 20px;
             font-size: 24px;
+            font-weight: 700;
         }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #444; }
+        
         input[type="text"], textarea, select {
-            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; font-family: inherit;
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: #007bff; outline: none;
         }
         textarea { min-height: 100px; resize: vertical; }
         
         /* ปุ่มต่างๆ */
-        button { cursor: pointer; font-family: inherit; transition: all 0.2s ease; }
+        button { cursor: pointer; font-family: inherit; transition: all 0.2s ease; border: none; }
         
         button#copyButton {
-            width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; margin-bottom: 10px; 
+            width: 100%; padding: 16px; background-color: #007bff; color: white; border-radius: 8px; font-size: 18px; font-weight: 600; margin-bottom: 10px; 
+            box-shadow: 0 4px 6px rgba(0,123,255,0.2);
         }
-        button#copyButton:hover { background-color: #0056b3; transform: translateY(-1px); }
+        button#copyButton:hover { background-color: #0062cc; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,123,255,0.3); }
+        button#copyButton:active { transform: translateY(1px); }
 
         button#resetButton {
-            width: 100%; padding: 10px; background-color: #f8f9fa; color: #dc3545; border: 1px solid #dc3545; border-radius: 6px; font-size: 16px; font-weight: 500; margin-bottom: 20px;
+            width: 100%; padding: 10px; background-color: #f1f3f5; color: #dc3545; border-radius: 8px; font-size: 15px; font-weight: 600; margin-bottom: 20px;
         }
-        button#resetButton:hover { background-color: #ffeef0; }
+        button#resetButton:hover { background-color: #ffe3e3; }
 
         button#addTaskButton {
-            width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; margin-top: 10px; 
+            width: 100%; padding: 12px; background-color: #28a745; color: white; border-radius: 8px; font-size: 16px; font-weight: 600; margin-top: 10px; 
         }
         button#addTaskButton:hover { background-color: #218838; }
 
         /* Layout Task */
-        .task-list-header { display: flex; gap: 10px; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
+        .task-list-header { display: flex; gap: 10px; margin-bottom: 8px; font-weight: 600; color: #666; font-size: 14px; }
         .task-list-header .detail-header { flex: 4; }
         .task-list-header .status-header { flex: 2; }
         .task-list-header .remark-header { flex: 3; }
         .task-list-header .action-header { width: 50px; text-align: center; } 
 
-        .task-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .task-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
         .task-row .task-detail { flex: 4; }
         .task-row .task-status { flex: 2; }
         .task-row .task-remark { flex: 3; }
 
+        /* ✨ Status Colors Classes */
+        .task-status.status-ok { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .task-status.status-ng { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .task-status.status-pending { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .task-status.status-waiting { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
         button.remove-task-button {
-            width: 50px; padding: 12px 0; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;
+            width: 50px; padding: 12px 0; background-color: #ff6b6b; color: white; border-radius: 8px; font-size: 14px;
         }
-        button.remove-task-button:hover { background-color: #c82333; }
+        button.remove-task-button:hover { background-color: #fa5252; }
 
         @media (max-width: 600px) {
             .task-list-header { display: none; }
-            .task-row { flex-direction: column; gap: 8px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px; }
+            .task-row { flex-direction: column; gap: 10px; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e9ecef; margin-bottom: 15px; }
             .task-row .task-detail, .task-row .task-status, .task-row .task-remark { width: 100%; flex: none; }
-            button.remove-task-button { width: 100%; margin-top: 5px; background-color: #ff4d4d; color: white; padding: 10px; }
+            button.remove-task-button { width: 100%; margin-top: 5px; background-color: #ff6b6b; color: white; padding: 10px; }
         }
         
-        #output { background-color: #e9ecef; border: 1px dashed #aaa; min-height: 150px; white-space: pre-wrap; font-family: inherit; font-size: 14px; }
+        #output { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; min-height: 150px; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: #444; }
 
-        /* --- ✨ CSS สำหรับ Custom Modal (กล่องแจ้งเตือนสวยๆ) --- */
+        /* --- ✨ Custom Modal (Reset) --- */
         .modal-overlay {
-            display: none; /* ซ่อนไว้ก่อน */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* พื้นหลังสีดำโปร่งแสง */
-            backdrop-filter: blur(2px); /* เบลอฉากหลังนิดๆ */
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);
+            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
         }
-
         .modal-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            transform: scale(0.8);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: white; padding: 30px; border-radius: 16px; width: 85%; max-width: 350px; text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        
-        /* คลาสสำหรับเปิด Modal (JavaScript จะใส่คลาสนี้) */
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-icon { font-size: 48px; margin-bottom: 15px; display: block; }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #333; }
+        .modal-desc { color: #666; margin-bottom: 25px; line-height: 1.5; font-size: 15px; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .btn-confirm { padding: 12px 20px; background-color: #fa5252; color: white; border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
+        .btn-cancel { padding: 12px 20px; background-color: #e9ecef; color: #495057; border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
 
-        .modal-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            display: block;
+        /* --- ✨ Toast Notification (แจ้งเตือน Copy) --- */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px;
+            padding: 16px; position: fixed; z-index: 1001; left: 50%; bottom: 30px; transform: translateX(-50%);
+            font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 10px;
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s;
         }
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        .modal-desc {
-            color: #666;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        .btn-confirm {
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            flex: 1;
-        }
-        .btn-confirm:hover { background-color: #c82333; }
-        
-        .btn-cancel {
-            padding: 10px 20px;
-            background-color: #e9ecef;
-            color: #333;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            flex: 1;
-        }
-        .btn-cancel:hover { background-color: #dde2e6; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
 
     </style>
 </head>
@@ -193,8 +154,9 @@
             <textarea id="problems" rows="4" placeholder="1._&#10;2._"></textarea>
         </div>
 
-        <button id="copyButton">สร้างและคัดลอก (Generate & Copy)</button>
-        <button id="resetButton">🗑️ ล้างข้อมูลทั้งหมด (Reset)</button>
+        <button id="copyButton">📋 สร้างและคัดลอก (Generate & Copy)</button>
+        
+        <button id="resetButton">🗑️ ล้างข้อมูล (Reset)</button>
 
         <div class="form-group">
             <label>ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
@@ -205,17 +167,16 @@
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
             <span class="modal-icon">🗑️</span>
-            <div class="modal-title">ยืนยันการล้างข้อมูล?</div>
-            <div class="modal-desc">
-                คุณต้องการลบข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?<br>
-                (การกระทำนี้ไม่สามารถย้อนกลับได้)
-            </div>
+            <div class="modal-title">ล้างข้อมูลทั้งหมด?</div>
+            <div class="modal-desc">ข้อมูลที่คุณกรอกจะหายไปทั้งหมด<br>ต้องการเริ่มใหม่ใช่หรือไม่?</div>
             <div class="modal-buttons">
                 <button id="cancelModalBtn" class="btn-cancel">ยกเลิก</button>
-                <button id="confirmModalBtn" class="btn-confirm">ยืนยันลบ</button>
+                <button id="confirmModalBtn" class="btn-confirm">ล้างเลย</button>
             </div>
         </div>
     </div>
+
+    <div id="toast">✅ คัดลอกเรียบร้อยพร้อมวาง!</div>
 
     <script>
         const taskList = document.getElementById('task-list');
@@ -226,12 +187,13 @@
         const modal = document.getElementById('customModal');
         const confirmModalBtn = document.getElementById('confirmModalBtn');
         const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const toast = document.getElementById('toast');
 
         function createNewTaskRow(detailVal = '', statusVal = 'OK', remarkVal = '') {
             const newRow = document.createElement('div');
             newRow.className = 'task-row';
             newRow.innerHTML = `
-                <input type="text" class="task-detail" placeholder="รายละเอียดงาน (Detail)..." value="${detailVal}">
+                <input type="text" class="task-detail" placeholder="รายละเอียดงาน..." value="${detailVal}">
                 <select class="task-status" aria-label="Status">
                     <option value="OK" ${statusVal === 'OK' ? 'selected' : ''}>Status: OK</option>
                     <option value="Pending" ${statusVal === 'Pending' ? 'selected' : ''}>Status: Pending</option>
@@ -240,12 +202,35 @@
                     <option value="NG" ${statusVal === 'NG' ? 'selected' : ''}>Status: NG</option>
                     <option value="-" ${statusVal === '-' ? 'selected' : ''}>Status: -</option>
                 </select>
-                <input type="text" class="task-remark" placeholder="หมายเหตุ/Remark (ถ้ามี)" value="${remarkVal}">
+                <input type="text" class="task-remark" placeholder="หมายเหตุ (ถ้ามี)" value="${remarkVal}">
                 <button type="button" class="remove-task-button">ลบ</button>
             `;
-            const inputs = newRow.querySelectorAll('input, select');
+            
+            // Event Listener: Update Color & Save
+            const statusSelect = newRow.querySelector('.task-status');
+            updateStatusColor(statusSelect); // Set initial color
+            statusSelect.addEventListener('change', function() {
+                updateStatusColor(this);
+                saveData();
+            });
+
+            const inputs = newRow.querySelectorAll('input');
             inputs.forEach(input => input.addEventListener('input', saveData));
+
             taskList.appendChild(newRow);
+        }
+
+        // ✨ ฟังก์ชันเปลี่ยนสีตาม Status
+        function updateStatusColor(selectElement) {
+            // Reset classes
+            selectElement.classList.remove('status-ok', 'status-ng', 'status-pending', 'status-waiting');
+            
+            const val = selectElement.value;
+            if(val === 'OK') selectElement.classList.add('status-ok');
+            else if(val === 'NG') selectElement.classList.add('status-ng');
+            else if(val === 'Pending') selectElement.classList.add('status-pending');
+            else if(val === 'In Progress') selectElement.classList.add('status-pending');
+            else if(val === 'Waiting') selectElement.classList.add('status-waiting');
         }
 
         addTaskButton.addEventListener('click', () => { createNewTaskRow(); saveData(); });
@@ -287,54 +272,41 @@
             } else { createNewTaskRow(); }
         }
 
-        // --- ✨ Logic การเปิด/ปิด Modal สวยๆ ---
-        
-        // 1. เมื่อกดปุ่ม Reset ให้โชว์ Modal
-        resetButton.addEventListener('click', function() {
-            modal.classList.add('active');
-        });
-
-        // 2. เมื่อกด "ยกเลิก" ให้ซ่อน Modal
-        cancelModalBtn.addEventListener('click', function() {
-            modal.classList.remove('active');
-        });
-
-        // 3. เมื่อกด "ยืนยันลบ" ให้ล้างข้อมูลและซ่อน Modal
+        // --- Modal Logic ---
+        resetButton.addEventListener('click', () => modal.classList.add('active'));
+        cancelModalBtn.addEventListener('click', () => modal.classList.remove('active'));
         confirmModalBtn.addEventListener('click', function() {
-            // ล้างข้อมูล
             document.getElementById('workBom').value = '';
             document.getElementById('projectName').value = '';
             document.getElementById('problems').value = '';
             taskList.innerHTML = '';
             createNewTaskRow();
-            saveData(); // Save ทับด้วยค่าว่าง
+            saveData();
             document.getElementById('output').value = '';
-            
-            // ปิด Modal
             modal.classList.remove('active');
         });
+        modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
 
-        // 4. กดพื้นที่สีดำรอบๆ ก็ปิด Modal ได้เหมือนกัน
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
-        });
-
-        // Load Init Data
+        // Load Data
         document.getElementById('workBom').addEventListener('input', saveData);
         document.getElementById('projectName').addEventListener('input', saveData);
         document.getElementById('problems').addEventListener('input', saveData);
         loadData();
 
-        // Copy Function (เหมือนเดิม)
+        // Copy Logic
         document.getElementById('copyButton').addEventListener('click', function() {
             const workBom = document.getElementById('workBom').value.trim();
             const projectName = document.getElementById('projectName').value.trim();
             const problems = document.getElementById('problems').value.trim();
             const parts = [];
             const longSeparator = '------------------------------'; 
-
+            
+            // ✨ เพิ่มวันที่ปัจจุบันแบบไทย
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // ใส่หัวข้อ
+            parts.push(`📅 รายงานวันที่: ${dateStr}`);
             if (workBom) parts.push(`🔖 Work BOM : ${workBom}`);
             if (projectName) parts.push(`🏷️ Project : ${projectName}`);
             if (workBom || projectName) parts.push(`${longSeparator}`); 
@@ -371,18 +343,18 @@
             outputArea.value = reportText;
 
             navigator.clipboard.writeText(reportText).then(() => {
-                const button = document.getElementById('copyButton');
-                button.innerText = 'คัดลอกแล้ว! (Copied!) ✅';
-                button.style.backgroundColor = '#28a745'; 
-                setTimeout(() => {
-                    button.innerText = 'สร้างและคัดลอก (Generate & Copy)';
-                    button.style.backgroundColor = '#007bff';
-                }, 2000);
+                showToast(); // ✨ เรียก Toast notification
             }).catch(err => {
-                console.error('คัดลอกไม่สำเร็จ: ', err);
-                alert('การคัดลอกไม่สำเร็จ');
+                console.error('Copy failed', err);
+                alert('Copy Error');
             });
         });
+
+        // ✨ ฟังก์ชันแสดง Toast
+        function showToast() {
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
     </script>
 
 </body>
