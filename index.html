@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ตัวสร้างรีพอร์ต</title>
     <style>
-        /* --- CSS Variables (สำหรับจัดการสี) --- */
+        /* --- CSS Variables --- */
         :root {
             --bg-color: #f4f7f6;
             --container-bg: #ffffff;
@@ -18,9 +18,9 @@
             --task-bg: transparent;
             --output-bg: #f8f9fa;
             --modal-bg: #fff;
+            --history-item-bg: #f8f9fa;
         }
 
-        /* 🌙 Dark Mode Theme */
         [data-theme="dark"] {
             --bg-color: #121212;
             --container-bg: #1e1e1e;
@@ -33,178 +33,116 @@
             --task-bg: #2d2d2d;
             --output-bg: #2d2d2d;
             --modal-bg: #2d2d2d;
+            --history-item-bg: #333;
         }
 
         /* --- CSS พื้นฐาน --- */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .container {
-            max-width: 800px; 
-            margin: 0 auto;
-            background-color: var(--container-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px var(--shadow);
-            transition: background-color 0.3s;
-            position: relative;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 15px; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
+        .container { max-width: 800px; margin: 0 auto; background-color: var(--container-bg); padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px var(--shadow); transition: background-color 0.3s; position: relative; }
         
-        /* 🌓 ปุ่ม Toggle Dark Mode */
-        .theme-switch-wrapper {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-        }
-        .theme-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background 0.3s;
-        }
-        .theme-btn:hover { background-color: rgba(128,128,128,0.2); }
+        .header-buttons { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
+        .icon-round-btn { background: none; border: none; cursor: pointer; font-size: 22px; padding: 8px; border-radius: 50%; transition: background 0.3s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .icon-round-btn:hover { background-color: rgba(128,128,128,0.2); }
 
-        h1 {
-            text-align: center;
-            color: var(--header-color);
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: 700;
-        }
+        h1 { text-align: center; color: var(--header-color); margin-bottom: 20px; font-size: 24px; font-weight: 700; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text-color); opacity: 0.9; }
         
-        input[type="text"], textarea, select {
-            width: 100%; padding: 12px; 
-            border: 1px solid var(--input-border); 
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit;
-            transition: border-color 0.2s, background-color 0.3s;
-        }
-        input[type="text"]:focus, textarea:focus, select:focus {
-            border-color: #007bff; outline: none;
-        }
+        input[type="text"], textarea, select { width: 100%; padding: 12px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; transition: border-color 0.2s, background-color 0.3s; }
+        input[type="text"]:focus, textarea:focus, select:focus { border-color: #007bff; outline: none; }
         textarea { min-height: 100px; resize: vertical; }
         
-        /* ปุ่มต่างๆ */
         button { cursor: pointer; font-family: inherit; transition: all 0.2s ease; border: none; }
         
-        button#copyButton {
-            width: 100%; padding: 16px; background-color: #007bff; color: white; border-radius: 8px; font-size: 18px; font-weight: 600; margin-bottom: 10px; 
-            box-shadow: 0 4px 6px rgba(0,123,255,0.2);
-        }
+        button#copyButton { width: 100%; padding: 16px; background-color: #007bff; color: white; border-radius: 8px; font-size: 18px; font-weight: 600; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,123,255,0.2); }
         button#copyButton:hover { background-color: #0062cc; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,123,255,0.3); }
 
-        .action-buttons {
-            display: flex; gap: 10px; margin-bottom: 20px;
-        }
-        button.secondary-btn {
-            flex: 1; padding: 10px; border-radius: 8px; font-size: 15px; font-weight: 600;
-        }
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        button.secondary-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 15px; font-weight: 600; }
         button#clearTasksBtn { background-color: #ffc107; color: #212529; }
         button#clearTasksBtn:hover { background-color: #e0a800; }
-        
         button#resetAllBtn { background-color: #f1f3f5; color: #dc3545; }
         button#resetAllBtn:hover { background-color: #ffe3e3; }
-
-        button#addTaskButton {
-            width: 100%; padding: 12px; background-color: #28a745; color: white; border-radius: 8px; font-size: 16px; font-weight: 600; margin-top: 10px; 
-        }
+        
+        button#addTaskButton { width: 100%; padding: 12px; background-color: #28a745; color: white; border-radius: 8px; font-size: 16px; font-weight: 600; margin-top: 10px; }
         button#addTaskButton:hover { background-color: #218838; }
 
-        /* Layout Task */
         .task-list-header { display: flex; gap: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-color); opacity: 0.8; font-size: 14px; }
         .task-list-header .detail-header { flex: 4; }
         .task-list-header .status-header { flex: 2; }
         .task-list-header .remark-header { flex: 3; }
-        .task-list-header .action-header { width: 50px; text-align: center; } 
+        .task-list-header .action-header { width: 90px; text-align: center; }
 
         .task-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
         .task-row .task-detail { flex: 4; }
         .task-row .task-status { flex: 2; }
         .task-row .task-remark { flex: 3; }
 
-        /* Status Colors */
         .task-status.status-ok { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
         .task-status.status-ng { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         .task-status.status-pending { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
         .task-status.status-waiting { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
-        
-        /* Fix Status Colors in Dark Mode */
         [data-theme="dark"] .task-status.status-ok { background-color: #1b4d2e; color: #d4edda; border-color: #2e7d32; }
         [data-theme="dark"] .task-status.status-ng { background-color: #4d1b1b; color: #f8d7da; border-color: #c62828; }
         [data-theme="dark"] .task-status.status-pending { background-color: #4d3e0b; color: #fff3cd; border-color: #f9a825; }
         [data-theme="dark"] .task-status.status-waiting { background-color: #0b3d4d; color: #d1ecf1; border-color: #0277bd; }
 
-        button.remove-task-button {
-            width: 50px; padding: 12px 0; background-color: #ff6b6b; color: white; border-radius: 8px; font-size: 14px;
-        }
+        .task-actions { display: flex; gap: 4px; justify-content: flex-end; min-width: 90px; }
+        button.icon-btn { width: 32px; height: 38px; border-radius: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        button.move-up-btn, button.move-down-btn { background-color: #e9ecef; color: #333; }
+        button.move-up-btn:hover, button.move-down-btn:hover { background-color: #ced4da; }
+        button.remove-task-button { background-color: #ff6b6b; color: white; width: 32px; }
         button.remove-task-button:hover { background-color: #fa5252; }
 
         @media (max-width: 600px) {
             .task-list-header { display: none; }
             .task-row { flex-direction: column; gap: 10px; background-color: var(--task-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--input-border); margin-bottom: 15px; }
             .task-row .task-detail, .task-row .task-status, .task-row .task-remark { width: 100%; flex: none; }
-            button.remove-task-button { width: 100%; margin-top: 5px; background-color: #ff6b6b; color: white; padding: 10px; }
+            .task-actions { width: 100%; justify-content: space-between; margin-top: 5px; }
+            button.icon-btn { flex: 1; height: 40px; font-size: 18px; }
         }
         
-        #output { 
-            background-color: var(--output-bg); 
-            border: 1px solid var(--input-border); 
-            border-radius: 8px; 
-            min-height: 150px; 
-            white-space: pre-wrap; 
-            font-family: monospace; 
-            font-size: 14px; 
-            color: var(--input-text);
-        }
+        #output { background-color: var(--output-bg); border: 1px solid var(--input-border); border-radius: 8px; min-height: 150px; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: var(--input-text); }
 
-        /* --- Modal --- */
-        .modal-overlay {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);
-            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
-        }
-        .modal-content {
-            background-color: var(--modal-bg); padding: 30px; border-radius: 16px; width: 85%; max-width: 350px; text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            color: var(--text-color);
-        }
+        /* Modal General */
+        /* ✨ แก้ไข z-index: confirmModal ต้องสูงกว่า historyModal (1000) */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px); justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        #confirmModal { z-index: 1100; } /* ✨ ให้กล่องยืนยันอยู่บนสุดเสมอ */
+
         .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background-color: var(--modal-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); color: var(--text-color); max-height: 80vh; display: flex; flex-direction: column; }
         .modal-overlay.active .modal-content { transform: scale(1); }
-        .modal-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
-        .modal-desc { margin-bottom: 25px; line-height: 1.5; font-size: 15px; opacity: 0.8; }
+        
+        /* History Modal Specific */
+        #historyList { overflow-y: auto; margin-top: 15px; flex: 1; padding-right: 5px; }
+        .history-item { background-color: var(--history-item-bg); border: 1px solid var(--input-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; text-align: left; position: relative; }
+        .history-item:hover { border-color: #007bff; transform: translateX(2px); }
+        .history-date { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .history-project { font-weight: bold; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-bom { font-size: 13px; color: var(--text-color); opacity: 0.8; }
+
+        .modal-icon { font-size: 48px; margin-bottom: 15px; display: block; text-align: center; }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .modal-desc { margin-bottom: 25px; line-height: 1.5; font-size: 15px; opacity: 0.8; text-align: center; }
         .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        
         .btn-confirm { padding: 12px 20px; background-color: #fa5252; color: white; border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
         .btn-cancel { padding: 12px 20px; background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
+        .btn-close { width: 100%; padding: 10px; background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 8px; margin-top: 10px; cursor: pointer; }
 
-        /* Toast */
-        #toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px;
-            padding: 16px; position: fixed; z-index: 1001; left: 50%; bottom: 30px; transform: translateX(-50%);
-            font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 10px;
-            opacity: 0; transition: opacity 0.3s, bottom 0.3s;
-        }
+        /* สีปุ่ม Restore เฉพาะกิจ */
+        .btn-confirm.btn-restore { background-color: #007bff; } /* สีน้ำเงินสำหรับปุ่มกู้คืน */
+
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1200; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="theme-switch-wrapper">
-            <button class="theme-btn" id="themeToggle" title="เปลี่ยนโหมดมืด/สว่าง">🌓</button>
+        <div class="header-buttons">
+            <button class="icon-round-btn" id="historyBtn" title="ประวัติรีพอร์ต">📜</button>
+            <button class="icon-round-btn" id="themeToggle" title="เปลี่ยนโหมดมืด/สว่าง">🌓</button>
         </div>
 
         <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
@@ -219,13 +157,21 @@
             <input type="text" id="projectName" placeholder="PROJECT MACHINE WASHING SOLENOID 1W ( MC.1 )">
         </div>
 
+        <datalist id="remarkOptions">
+            <option value="รอเทสช่วงบ่าย">
+            <option value="ติดตั้งเสร็จสิ้น">
+            <option value="แก้ไขเรียบร้อย">
+            <option value="เจอปัญหาหน้างาน">
+            <option value="ระบบขัดข้อง">
+        </datalist>
+
         <div class="form-group">
             <label>รายละเอียดงาน (Detail)</label>
             <div class="task-list-header">
                 <div class="detail-header">Detail</div>
                 <div class="status-header">Status</div>
                 <div class="remark-header">Remark</div>
-                <div class="action-header">ลบ</div>
+                <div class="action-header">Actions</div>
             </div>
             <div id="task-list"></div>
             <button type="button" id="addTaskButton">➕ เพิ่มรายการงาน</button>
@@ -249,15 +195,23 @@
         </div>
     </div>
 
-    <div id="customModal" class="modal-overlay">
+    <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
-            <span class="modal-icon" id="modalIcon">🗑️</span>
-            <div class="modal-title" id="modalTitle">ยืนยัน?</div>
+            <span class="modal-icon" id="confirmIcon">⚠️</span> <div class="modal-title" id="modalTitle">ยืนยัน?</div>
             <div class="modal-desc" id="modalDesc">รายละเอียด...</div>
             <div class="modal-buttons">
                 <button id="cancelModalBtn" class="btn-cancel">ยกเลิก</button>
                 <button id="confirmModalBtn" class="btn-confirm">ยืนยัน</button>
             </div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">📜 ประวัติรีพอร์ต</div>
+            <div style="font-size: 14px; color: #888; margin-bottom: 10px;">คลิกเพื่อโหลดข้อมูลเก่ากลับมาแก้ไข</div>
+            <div id="historyList"></div>
+            <button id="closeHistoryBtn" class="btn-close">ปิดหน้าต่าง</button>
         </div>
     </div>
 
@@ -268,23 +222,30 @@
         const taskList = document.getElementById('task-list');
         const addTaskButton = document.getElementById('addTaskButton');
         const resetAllBtn = document.getElementById('resetAllBtn');
-        const clearTasksBtn = document.getElementById('clearTasksBtn'); // ปุ่มใหม่
-        const themeToggle = document.getElementById('themeToggle'); // ปุ่ม Dark Mode
+        const clearTasksBtn = document.getElementById('clearTasksBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const historyBtn = document.getElementById('historyBtn');
         
-        // Modal Elements
-        const modal = document.getElementById('customModal');
+        const confirmModal = document.getElementById('confirmModal');
+        const historyModal = document.getElementById('historyModal');
+        
+        // Elements inside Confirm Modal
         const modalTitle = document.getElementById('modalTitle');
         const modalDesc = document.getElementById('modalDesc');
+        const confirmIcon = document.getElementById('confirmIcon');
         const confirmModalBtn = document.getElementById('confirmModalBtn');
         const cancelModalBtn = document.getElementById('cancelModalBtn');
+        
+        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+        const historyList = document.getElementById('historyList');
         const toast = document.getElementById('toast');
         
-        let pendingAction = null; // ตัวแปรเก็บว่ากดปุ่มไหนมา (Reset All หรือ Clear Tasks)
+        let pendingAction = null;
+        let pendingRestoreData = null;
 
-        // --- Dark Mode Logic ---
+        // --- Dark Mode ---
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', currentTheme);
-
         themeToggle.addEventListener('click', () => {
             let theme = document.documentElement.getAttribute('data-theme');
             let newTheme = theme === 'light' ? 'dark' : 'light';
@@ -306,17 +267,18 @@
                     <option value="NG" ${statusVal === 'NG' ? 'selected' : ''}>Status: NG</option>
                     <option value="-" ${statusVal === '-' ? 'selected' : ''}>Status: -</option>
                 </select>
-                <input type="text" class="task-remark" placeholder="หมายเหตุ (ถ้ามี)" value="${remarkVal}">
-                <button type="button" class="remove-task-button">ลบ</button>
+                <input type="text" class="task-remark" list="remarkOptions" placeholder="หมายเหตุ (ถ้ามี)" value="${remarkVal}">
+                <div class="task-actions">
+                    <button type="button" class="icon-btn move-up-btn" title="เลื่อนขึ้น">⬆️</button>
+                    <button type="button" class="icon-btn move-down-btn" title="เลื่อนลง">⬇️</button>
+                    <button type="button" class="icon-btn remove-task-button" title="ลบ">🗑️</button>
+                </div>
             `;
-            
             const statusSelect = newRow.querySelector('.task-status');
             updateStatusColor(statusSelect); 
             statusSelect.addEventListener('change', function() { updateStatusColor(this); saveData(); });
-
             const inputs = newRow.querySelectorAll('input');
             inputs.forEach(input => input.addEventListener('input', saveData));
-
             taskList.appendChild(newRow);
         }
 
@@ -330,14 +292,22 @@
         }
 
         addTaskButton.addEventListener('click', () => { createNewTaskRow(); saveData(); });
+
         taskList.addEventListener('click', function(e) {
-            if (e.target && e.target.classList.contains('remove-task-button')) {
-                e.target.closest('.task-row').remove();
-                saveData();
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const row = btn.closest('.task-row');
+            if (!row) return;
+            if (btn.classList.contains('remove-task-button')) {
+                row.remove(); saveData();
+            } else if (btn.classList.contains('move-up-btn')) {
+                if (row.previousElementSibling) { taskList.insertBefore(row, row.previousElementSibling); saveData(); }
+            } else if (btn.classList.contains('move-down-btn')) {
+                if (row.nextElementSibling) { taskList.insertBefore(row.nextElementSibling, row); saveData(); }
             }
         });
 
-        function saveData() {
+        function getDataFromForm() {
             const data = {
                 workBom: document.getElementById('workBom').value,
                 projectName: document.getElementById('projectName').value,
@@ -351,39 +321,106 @@
                     remark: row.querySelector('.task-remark').value
                 });
             });
+            return data;
+        }
+
+        function saveData() {
+            const data = getDataFromForm();
             localStorage.setItem('reportData', JSON.stringify(data));
         }
 
         function loadData() {
             const savedData = localStorage.getItem('reportData');
             if (savedData) {
-                const data = JSON.parse(savedData);
-                document.getElementById('workBom').value = data.workBom || '';
-                document.getElementById('projectName').value = data.projectName || '';
-                document.getElementById('problems').value = data.problems || '';
-                if (data.tasks && data.tasks.length > 0) {
-                    data.tasks.forEach(task => createNewTaskRow(task.detail, task.status, task.remark));
-                } else { createNewTaskRow(); }
+                restoreData(JSON.parse(savedData));
             } else { createNewTaskRow(); }
         }
 
-        // --- Modal & Action Logic ---
-        function openModal(actionType) {
-            pendingAction = actionType;
-            modal.classList.add('active');
+        function restoreData(data) {
+            document.getElementById('workBom').value = data.workBom || '';
+            document.getElementById('projectName').value = data.projectName || '';
+            document.getElementById('problems').value = data.problems || '';
+            taskList.innerHTML = '';
+            if (data.tasks && data.tasks.length > 0) {
+                data.tasks.forEach(task => createNewTaskRow(task.detail, task.status, task.remark));
+            } else { createNewTaskRow(); }
+            saveData(); 
+        }
+
+        function saveToHistory() {
+            const currentData = getDataFromForm();
+            if (!currentData.workBom && !currentData.projectName && currentData.tasks.length <= 1 && !currentData.tasks[0].detail) return;
+            let history = JSON.parse(localStorage.getItem('reportHistory') || '[]');
+            const now = new Date();
+            const timestamp = now.toLocaleString('th-TH');
+            const historyItem = { timestamp: timestamp, data: currentData };
+            history.unshift(historyItem);
+            if (history.length > 20) history.pop();
+            localStorage.setItem('reportHistory', JSON.stringify(history));
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('reportHistory') || '[]');
+            historyList.innerHTML = '';
             
+            if (history.length === 0) {
+                historyList.innerHTML = '<div style="padding:20px;color:#888;text-align:center;">ยังไม่มีประวัติรีพอร์ต</div>';
+                return;
+            }
+
+            history.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                let title = item.data.projectName || 'ไม่มีชื่อโปรเจกต์';
+                let subtitle = item.data.workBom || 'No BOM';
+                
+                div.innerHTML = `
+                    <div class="history-date">${item.timestamp}</div>
+                    <div class="history-project">${title}</div>
+                    <div class="history-bom">${subtitle}</div>
+                `;
+                
+                div.addEventListener('click', () => {
+                    pendingRestoreData = item.data;
+                    openConfirmModal('restoreHistory', item.timestamp);
+                });
+                historyList.appendChild(div);
+            });
+        }
+
+        historyBtn.addEventListener('click', () => { renderHistory(); historyModal.classList.add('active'); });
+        closeHistoryBtn.addEventListener('click', () => historyModal.classList.remove('active'));
+
+        // --- Modal & Action Logic (รวมศูนย์) ---
+        function openConfirmModal(actionType, extraText = '') {
+            pendingAction = actionType;
+            confirmModal.classList.add('active');
+            
+            // Reset button style
+            confirmModalBtn.className = 'btn-confirm';
+            confirmModalBtn.innerText = 'ยืนยัน';
+
             if (actionType === 'resetAll') {
+                confirmIcon.innerText = '🗑️';
                 modalTitle.innerText = 'ล้างข้อมูลทั้งหมด?';
                 modalDesc.innerHTML = 'BOM, Project, และงานทั้งหมดจะหายไป<br>ต้องการเริ่มใหม่ใช่หรือไม่?';
             } else if (actionType === 'clearTasks') {
+                confirmIcon.innerText = '🧹';
                 modalTitle.innerText = 'ล้างเฉพาะงาน?';
                 modalDesc.innerHTML = 'เลข BOM และชื่อ Project จะยังอยู่<br>แต่รายการงานและปัญหาจะถูกลบ';
+            } else if (actionType === 'restoreHistory') {
+                // ✨ ใช้ไอคอน Folder และเปลี่ยนสีปุ่มเป็นน้ำเงิน
+                confirmIcon.innerText = '📂';
+                confirmModalBtn.classList.add('btn-restore'); // เพิ่ม class สีน้ำเงิน
+                confirmModalBtn.innerText = 'โหลดข้อมูล';
+                modalTitle.innerText = 'โหลดรีพอร์ตเก่า?';
+                modalDesc.innerHTML = `ต้องการกู้คืนข้อมูลจากวันที่<br><b>${extraText}</b> ใช่หรือไม่?<br>(ข้อมูลปัจจุบันจะถูกแทนที่)`;
             }
         }
 
-        resetAllBtn.addEventListener('click', () => openModal('resetAll'));
-        clearTasksBtn.addEventListener('click', () => openModal('clearTasks'));
-        cancelModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+        resetAllBtn.addEventListener('click', () => openConfirmModal('resetAll'));
+        clearTasksBtn.addEventListener('click', () => openConfirmModal('clearTasks'));
+        cancelModalBtn.addEventListener('click', () => confirmModal.classList.remove('active'));
         
         confirmModalBtn.addEventListener('click', function() {
             if (pendingAction === 'resetAll') {
@@ -393,66 +430,63 @@
                 taskList.innerHTML = '';
                 createNewTaskRow();
             } else if (pendingAction === 'clearTasks') {
-                // ลบแค่ Task กับ Problems แต่เก็บ BOM/Project ไว้
                 document.getElementById('problems').value = '';
                 taskList.innerHTML = '';
                 createNewTaskRow();
+            } else if (pendingAction === 'restoreHistory') {
+                if (pendingRestoreData) {
+                    restoreData(pendingRestoreData);
+                    historyModal.classList.remove('active'); // ปิดประวัติ
+                }
             }
-            
             saveData();
             document.getElementById('output').value = '';
-            modal.classList.remove('active');
+            confirmModal.classList.remove('active');
         });
         
-        modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+        window.addEventListener('click', (e) => {
+            if (e.target === confirmModal) confirmModal.classList.remove('active');
+            if (e.target === historyModal) historyModal.classList.remove('active');
+        });
 
-        // Init
         document.getElementById('workBom').addEventListener('input', saveData);
         document.getElementById('projectName').addEventListener('input', saveData);
         document.getElementById('problems').addEventListener('input', saveData);
         loadData();
 
-        // Copy Logic
         document.getElementById('copyButton').addEventListener('click', function() {
-            const workBom = document.getElementById('workBom').value.trim();
-            const projectName = document.getElementById('projectName').value.trim();
-            const problems = document.getElementById('problems').value.trim();
+            saveToHistory();
+            const data = getDataFromForm();
             const parts = [];
             const longSeparator = '------------------------------'; 
-            
             const now = new Date();
             const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
             
             parts.push(`📅 รายงานวันที่: ${dateStr}`);
-            if (workBom) parts.push(`🔖 Work BOM : ${workBom}`);
-            if (projectName) parts.push(`🏷️ Project : ${projectName}`);
-            if (workBom || projectName) parts.push(`${longSeparator}`); 
+            if (data.workBom) parts.push(`🔖 Work BOM : ${data.workBom}`);
+            if (data.projectName) parts.push(`🏷️ Project : ${data.projectName}`);
+            if (data.workBom || data.projectName) parts.push(`${longSeparator}`); 
             
             parts.push('✅ **รายละเอียดงาน**');
             
-            const taskRows = document.querySelectorAll('#task-list .task-row');
-            if (taskRows.length > 0) {
+            if (data.tasks.length > 0) {
                 let hasTasks = false;
-                taskRows.forEach((row, i) => { 
-                    const detail = row.querySelector('.task-detail').value.trim();
-                    const status = row.querySelector('.task-status').value; 
-                    const remark = row.querySelector('.task-remark').value.trim();
-
-                    if (detail) {
+                data.tasks.forEach((task, i) => { 
+                    if (task.detail) {
                         hasTasks = true;
                         const taskNumber = i + 1; 
-                        parts.push(`${taskNumber}. ${detail}`); 
-                        parts.push(`   🚦 Status: ${status}`); 
-                        if (remark && remark !== '-') parts.push(`   💬 Remark: ${remark}`); 
+                        parts.push(`${taskNumber}. ${task.detail}`); 
+                        parts.push(`   🚦 Status: ${task.status}`); 
+                        if (task.remark && task.remark !== '-') parts.push(`   💬 Remark: ${task.remark}`); 
                     }
                 });
                 if (!hasTasks) parts.push('- ไม่มีรายการ -');
             } else { parts.push('- ไม่มีรายการ -'); }
             
-            if (problems) {
+            if (data.problems) {
                 parts.push(`${longSeparator}`); 
                 parts.push('📌 **ปัญหา**');
-                parts.push(problems);
+                parts.push(data.problems);
             }
 
             const reportText = parts.join('\n').trim(); 
