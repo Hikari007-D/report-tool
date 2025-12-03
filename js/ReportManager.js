@@ -129,10 +129,10 @@ class ReportManager {
                     hasTasks = true;
                     const taskNumber = index + 1;
                     parts.push(`${taskNumber}. ${task.detail}`);
-                    parts.push(`   🚦 Status: ${task.status}`);
+                    parts.push(`    Status: ${task.status}`);
                     
                     if (task.remark && task.remark !== '-') {
-                        parts.push(`   💬 Remark: ${task.remark}`);
+                        parts.push(`    Remark: ${task.remark}`);
                     }
                 }
             });
