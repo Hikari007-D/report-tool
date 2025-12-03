@@ -3,530 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตัวสร้างรีพอร์ต</title>
-    <style>
-        /* --- CSS Variables --- */
-        :root {
-            --bg-color: #f4f7f6;
-            --container-bg: #ffffff;
-            --text-color: #333;
-            --input-bg: #fff;
-            --input-border: #ddd;
-            --input-text: #333;
-            --header-color: #0056b3;
-            --shadow: rgba(0, 0, 0, 0.08);
-            --task-bg: transparent;
-            --output-bg: #f8f9fa;
-            --modal-bg: #fff;
-            --history-item-bg: #f8f9fa;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --input-bg: #2d2d2d;
-            --input-border: #404040;
-            --input-text: #e0e0e0;
-            --header-color: #64b5f6;
-            --shadow: rgba(0, 0, 0, 0.5);
-            --task-bg: #2d2d2d;
-            --output-bg: #2d2d2d;
-            --modal-bg: #2d2d2d;
-            --history-item-bg: #333;
-        }
-
-        /* --- CSS พื้นฐาน --- */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 15px; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
-        .container { max-width: 800px; margin: 0 auto; background-color: var(--container-bg); padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px var(--shadow); transition: background-color 0.3s; position: relative; }
-        
-        /* ✨ Header & Buttons Styling (แก้ไขใหม่) */
-        .header-buttons { 
-            position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; 
-        }
-        
-        .icon-round-btn { background: none; border: none; cursor: pointer; font-size: 22px; padding: 8px; border-radius: 50%; transition: background 0.3s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
-        .icon-round-btn:hover { background-color: rgba(128,128,128,0.2); }
-
-        h1 { text-align: center; color: var(--header-color); margin-bottom: 20px; font-size: 24px; font-weight: 700; margin-top: 0; }
-        
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text-color); opacity: 0.9; }
-        
-        input[type="text"], textarea, select { width: 100%; padding: 12px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; transition: border-color 0.2s, background-color 0.3s; }
-        input[type="text"]:focus, textarea:focus, select:focus { border-color: #007bff; outline: none; }
-        textarea { min-height: 100px; resize: vertical; }
-        
-        button { cursor: pointer; font-family: inherit; transition: all 0.2s ease; border: none; }
-        
-        button#copyButton { width: 100%; padding: 16px; background-color: #007bff; color: white; border-radius: 8px; font-size: 18px; font-weight: 600; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,123,255,0.2); }
-        button#copyButton:hover { background-color: #0062cc; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,123,255,0.3); }
-
-        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-        button.secondary-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 15px; font-weight: 600; }
-        button#clearTasksBtn { background-color: #ffc107; color: #212529; }
-        button#clearTasksBtn:hover { background-color: #e0a800; }
-        button#resetAllBtn { background-color: #f1f3f5; color: #dc3545; }
-        button#resetAllBtn:hover { background-color: #ffe3e3; }
-        
-        button#addTaskButton { width: 100%; padding: 12px; background-color: #28a745; color: white; border-radius: 8px; font-size: 16px; font-weight: 600; margin-top: 10px; }
-        button#addTaskButton:hover { background-color: #218838; }
-
-        .task-list-header { display: flex; gap: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-color); opacity: 0.8; font-size: 14px; }
-        .task-list-header .detail-header { flex: 4; }
-        .task-list-header .status-header { flex: 2; }
-        .task-list-header .remark-header { flex: 3; }
-        .task-list-header .action-header { width: 90px; text-align: center; }
-
-        .task-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
-        .task-row .task-detail { flex: 4; }
-        .task-row .task-status { flex: 2; }
-        .task-row .task-remark { flex: 3; }
-
-        .task-status.status-ok { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .task-status.status-ng { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-        .task-status.status-pending { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
-        .task-status.status-waiting { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
-        [data-theme="dark"] .task-status.status-ok { background-color: #1b4d2e; color: #d4edda; border-color: #2e7d32; }
-        [data-theme="dark"] .task-status.status-ng { background-color: #4d1b1b; color: #f8d7da; border-color: #c62828; }
-        [data-theme="dark"] .task-status.status-pending { background-color: #4d3e0b; color: #fff3cd; border-color: #f9a825; }
-        [data-theme="dark"] .task-status.status-waiting { background-color: #0b3d4d; color: #d1ecf1; border-color: #0277bd; }
-
-        .task-actions { display: flex; gap: 4px; justify-content: flex-end; min-width: 90px; }
-        button.icon-btn { width: 32px; height: 38px; border-radius: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        button.move-up-btn, button.move-down-btn { background-color: #e9ecef; color: #333; }
-        button.move-up-btn:hover, button.move-down-btn:hover { background-color: #ced4da; }
-        button.remove-task-button { background-color: #ff6b6b; color: white; width: 32px; }
-        button.remove-task-button:hover { background-color: #fa5252; }
-
-        /* ✨ Mobile Adjustment: ย้ายปุ่มไปอยู่บรรทัดบนสุด ไม่ให้ทับ Title */
-        @media (max-width: 600px) {
-            .header-buttons {
-                position: relative;
-                top: auto;
-                right: auto;
-                justify-content: flex-end;
-                margin-bottom: 5px;
-            }
-            h1 {
-                margin-top: 0;
-                font-size: 22px; /* ลดขนาดนิดหน่อย */
-            }
-
-            .task-list-header { display: none; }
-            .task-row { flex-direction: column; gap: 10px; background-color: var(--task-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--input-border); margin-bottom: 15px; }
-            .task-row .task-detail, .task-row .task-status, .task-row .task-remark { width: 100%; flex: none; }
-            .task-actions { width: 100%; justify-content: space-between; margin-top: 5px; }
-            button.icon-btn { flex: 1; height: 40px; font-size: 18px; }
-        }
-        
-        #output { background-color: var(--output-bg); border: 1px solid var(--input-border); border-radius: 8px; min-height: 150px; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: var(--input-text); }
-
-        /* Modal General */
-        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px); justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
-        #confirmModal { z-index: 1100; } 
-
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content { background-color: var(--modal-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); color: var(--text-color); max-height: 80vh; display: flex; flex-direction: column; }
-        .modal-overlay.active .modal-content { transform: scale(1); }
-        
-        #historyList { overflow-y: auto; margin-top: 15px; flex: 1; padding-right: 5px; }
-        .history-item { background-color: var(--history-item-bg); border: 1px solid var(--input-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; text-align: left; position: relative; }
-        .history-item:hover { border-color: #007bff; transform: translateX(2px); }
-        .history-date { font-size: 12px; color: #888; margin-bottom: 4px; }
-        .history-project { font-weight: bold; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-bom { font-size: 13px; color: var(--text-color); opacity: 0.8; }
-
-        .modal-icon { font-size: 48px; margin-bottom: 15px; display: block; text-align: center; }
-        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; text-align: center; }
-        .modal-desc { margin-bottom: 25px; line-height: 1.5; font-size: 15px; opacity: 0.8; text-align: center; }
-        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
-        
-        .btn-confirm { padding: 12px 20px; background-color: #fa5252; color: white; border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
-        .btn-cancel { padding: 12px 20px; background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 8px; font-size: 16px; flex: 1; font-weight: 600; }
-        .btn-close { width: 100%; padding: 10px; background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 8px; margin-top: 10px; cursor: pointer; }
-        .btn-confirm.btn-restore { background-color: #007bff; } 
-
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1200; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
-        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-    </style>
+    <meta name="description" content="เครื่องมือสร้างรีพอร์ตงานอัตโนมัติ สำหรับบันทึกและจัดการรายงานการทำงานประจำวัน">
+    <meta name="keywords" content="report generator, รายงาน, work report, BOM">
+    <meta name="author" content="Report Generator Team">
+    
+    <title>ตัวสร้างรีพอร์ต | Report Generator</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="skip-to-content">ข้ามไปยังเนื้อหา</a>
 
-    <div class="container">
+    <div class="container" id="main-content">
+        <!-- Header Buttons -->
         <div class="header-buttons">
-            <button class="icon-round-btn" id="historyBtn" title="ประวัติรีพอร์ต">📜</button>
-            <button class="icon-round-btn" id="themeToggle" title="เปลี่ยนโหมดมืด/สว่าง">🌓</button>
+            <button 
+                class="icon-round-btn" 
+                id="historyBtn" 
+                title="ประวัติรีพอร์ต"
+                aria-label="เปิดประวัติรีพอร์ต"
+            >📜</button>
+            <button 
+                class="icon-round-btn" 
+                id="themeToggle" 
+                title="เปลี่ยนโหมดมืด/สว่าง"
+                aria-label="สลับโหมดมืด/สว่าง"
+            >🌓</button>
         </div>
 
         <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
 
+        <!-- Work BOM Input -->
         <div class="form-group">
-            <label for="workBom">Work BOM</label> 
-            <input type="text" id="workBom" placeholder="WB-S2407-0105-A">
+            <label for="workBom">Work BOM</label>
+            <input 
+                type="text" 
+                id="workBom" 
+                placeholder="WB-S2407-0105-A"
+                aria-describedby="workBom-hint"
+            >
+            <small id="workBom-hint" style="font-size: 12px; color: #888;">
+                รูปแบบ: WB-X####-####-X (ตัวอย่าง: WB-S2407-0105-A)
+            </small>
         </div>
 
+        <!-- Project Name Input -->
         <div class="form-group">
             <label for="projectName">ชื่อ Project</label>
-            <input type="text" id="projectName" placeholder="PROJECT MACHINE WASHING SOLENOID 1W ( MC.1 )">
+            <input 
+                type="text" 
+                id="projectName" 
+                placeholder="PROJECT MACHINE WASHING SOLENOID 1W ( MC.1 )"
+                maxlength="200"
+            >
         </div>
 
+        <!-- Remark Options Datalist -->
         <datalist id="remarkOptions">
             <option value="รอเทสช่วงบ่าย">
             <option value="ติดตั้งเสร็จสิ้น">
             <option value="แก้ไขเรียบร้อย">
             <option value="เจอปัญหาหน้างาน">
             <option value="ระบบขัดข้อง">
+            <option value="รอคำตอบจากลูกค้า">
+            <option value="กำลังดำเนินการ">
         </datalist>
 
+        <!-- Task List Section -->
         <div class="form-group">
             <label>รายละเอียดงาน (Detail)</label>
-            <div class="task-list-header">
-                <div class="detail-header">Detail</div>
-                <div class="status-header">Status</div>
-                <div class="remark-header">Remark</div>
-                <div class="action-header">Actions</div>
+            
+            <!-- Task List Header (Desktop) -->
+            <div class="task-list-header" role="row" aria-label="หัวตารางรายการงาน">
+                <div class="detail-header" role="columnheader">Detail</div>
+                <div class="status-header" role="columnheader">Status</div>
+                <div class="remark-header" role="columnheader">Remark</div>
+                <div class="action-header" role="columnheader">Actions</div>
             </div>
-            <div id="task-list"></div>
-            <button type="button" id="addTaskButton">➕ เพิ่มรายการงาน</button>
+            
+            <!-- Task List Container -->
+            <div 
+                id="task-list" 
+                role="list" 
+                aria-label="รายการงาน"
+            ></div>
+            
+            <!-- Add Task Button -->
+            <button 
+                type="button" 
+                id="addTaskButton"
+                aria-label="เพิ่มรายการงานใหม่"
+            >➕ เพิ่มรายการงาน</button>
         </div>
 
+        <!-- Problems Section -->
         <div class="form-group">
-            <label for="problems">📌 ปัญหา (Problems)</label> 
-            <textarea id="problems" rows="4" placeholder="1._&#10;2._"></textarea>
+            <label for="problems">📌 ปัญหา (Problems)</label>
+            <textarea 
+                id="problems" 
+                rows="4" 
+                placeholder="1._&#10;2._"
+                aria-describedby="problems-hint"
+            ></textarea>
+            <small id="problems-hint" style="font-size: 12px; color: #888;">
+                ระบุปัญหาที่พบ (ถ้ามี)
+            </small>
         </div>
 
-        <button id="copyButton">📋 สร้างและคัดลอก (Generate & Copy)</button>
+        <!-- Copy Button -->
+        <button 
+            id="copyButton"
+            aria-label="สร้างและคัดลอกรีพอร์ต"
+        >📋 สร้างและคัดลอก (Generate &amp; Copy)</button>
         
+        <!-- Action Buttons -->
         <div class="action-buttons">
-            <button id="clearTasksBtn" class="secondary-btn">🧹 ล้างเฉพาะงาน</button>
-            <button id="resetAllBtn" class="secondary-btn">🗑️ ล้างทั้งหมด</button>
+            <button 
+                id="clearTasksBtn" 
+                class="secondary-btn"
+                aria-label="ล้างเฉพาะรายการงาน"
+            >🧹 ล้างเฉพาะงาน</button>
+            <button 
+                id="resetAllBtn" 
+                class="secondary-btn"
+                aria-label="ล้างข้อมูลทั้งหมด"
+            >🗑️ ล้างทั้งหมด</button>
         </div>
 
+        <!-- Output Preview -->
         <div class="form-group">
-            <label>ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
-            <textarea id="output" rows="10" readonly></textarea>
+            <label for="output">ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
+            <textarea 
+                id="output" 
+                rows="10" 
+                readonly
+                aria-label="ตัวอย่างรีพอร์ต"
+            ></textarea>
         </div>
     </div>
 
-    <div id="confirmModal" class="modal-overlay">
+    <!-- Confirm Modal -->
+    <div 
+        id="confirmModal" 
+        class="modal-overlay" 
+        role="dialog" 
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+        aria-describedby="modalDesc"
+        aria-hidden="true"
+    >
         <div class="modal-content">
-            <span class="modal-icon" id="confirmIcon">⚠️</span>
+            <span class="modal-icon" id="confirmIcon" aria-hidden="true">⚠️</span>
             <div class="modal-title" id="modalTitle">ยืนยัน?</div>
             <div class="modal-desc" id="modalDesc">รายละเอียด...</div>
             <div class="modal-buttons">
-                <button id="cancelModalBtn" class="btn-cancel">ยกเลิก</button>
-                <button id="confirmModalBtn" class="btn-confirm">ยืนยัน</button>
+                <button 
+                    id="cancelModalBtn" 
+                    class="btn-cancel"
+                    aria-label="ยกเลิก"
+                >ยกเลิก</button>
+                <button 
+                    id="confirmModalBtn" 
+                    class="btn-confirm"
+                    aria-label="ยืนยัน"
+                >ยืนยัน</button>
             </div>
         </div>
     </div>
 
-    <div id="historyModal" class="modal-overlay">
+    <!-- History Modal -->
+    <div 
+        id="historyModal" 
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="historyModalTitle"
+        aria-hidden="true"
+    >
         <div class="modal-content">
-            <div class="modal-title">📜 ประวัติรีพอร์ต</div>
-            <div style="font-size: 14px; color: #888; margin-bottom: 10px;">คลิกเพื่อโหลดข้อมูลเก่ากลับมาแก้ไข</div>
-            <div id="historyList"></div>
-            <button id="closeHistoryBtn" class="btn-close">ปิดหน้าต่าง</button>
+            <div class="modal-title" id="historyModalTitle">📜 ประวัติรีพอร์ต</div>
+            <div style="font-size: 14px; color: #888; margin-bottom: 10px;">
+                คลิกเพื่อโหลดข้อมูลเก่ากลับมาแก้ไข
+            </div>
+            <div 
+                id="historyList" 
+                role="list" 
+                aria-label="รายการประวัติรีพอร์ต"
+            ></div>
+            <button 
+                id="closeHistoryBtn" 
+                class="btn-close"
+                aria-label="ปิดหน้าต่าง"
+            >ปิดหน้าต่าง</button>
         </div>
     </div>
 
-    <div id="toast">✅ คัดลอกเรียบร้อยพร้อมวาง!</div>
+    <!-- Toast Notification -->
+    <div 
+        id="toast" 
+        role="alert" 
+        aria-live="polite"
+        aria-atomic="true"
+    >✅ คัดลอกเรียบร้อยพร้อมวาง!</div>
 
-    <script>
-        // --- Variables ---
-        const taskList = document.getElementById('task-list');
-        const addTaskButton = document.getElementById('addTaskButton');
-        const resetAllBtn = document.getElementById('resetAllBtn');
-        const clearTasksBtn = document.getElementById('clearTasksBtn');
-        const themeToggle = document.getElementById('themeToggle');
-        const historyBtn = document.getElementById('historyBtn');
-        
-        const confirmModal = document.getElementById('confirmModal');
-        const historyModal = document.getElementById('historyModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalDesc = document.getElementById('modalDesc');
-        const confirmIcon = document.getElementById('confirmIcon');
-        const confirmModalBtn = document.getElementById('confirmModalBtn');
-        const cancelModalBtn = document.getElementById('cancelModalBtn');
-        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-        const historyList = document.getElementById('historyList');
-        const toast = document.getElementById('toast');
-        
-        let pendingAction = null;
-        let pendingRestoreData = null;
-
-        // --- Dark Mode ---
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        themeToggle.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-            let newTheme = theme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-
-        // --- Task Functions ---
-        function createNewTaskRow(detailVal = '', statusVal = 'OK', remarkVal = '') {
-            const newRow = document.createElement('div');
-            newRow.className = 'task-row';
-            newRow.innerHTML = `
-                <input type="text" class="task-detail" placeholder="รายละเอียดงาน..." value="${detailVal}">
-                <select class="task-status" aria-label="Status">
-                    <option value="OK" ${statusVal === 'OK' ? 'selected' : ''}>Status: OK</option>
-                    <option value="Pending" ${statusVal === 'Pending' ? 'selected' : ''}>Status: Pending</option>
-                    <option value="In Progress" ${statusVal === 'In Progress' ? 'selected' : ''}>Status: In Progress</option>
-                    <option value="Waiting" ${statusVal === 'Waiting' ? 'selected' : ''}>Status: Waiting</option>
-                    <option value="NG" ${statusVal === 'NG' ? 'selected' : ''}>Status: NG</option>
-                    <option value="-" ${statusVal === '-' ? 'selected' : ''}>Status: -</option>
-                </select>
-                <input type="text" class="task-remark" list="remarkOptions" placeholder="หมายเหตุ (ถ้ามี)" value="${remarkVal}">
-                <div class="task-actions">
-                    <button type="button" class="icon-btn move-up-btn" title="เลื่อนขึ้น">⬆️</button>
-                    <button type="button" class="icon-btn move-down-btn" title="เลื่อนลง">⬇️</button>
-                    <button type="button" class="icon-btn remove-task-button" title="ลบ">🗑️</button>
-                </div>
-            `;
-            
-            const statusSelect = newRow.querySelector('.task-status');
-            updateStatusColor(statusSelect); 
-            statusSelect.addEventListener('change', function() { updateStatusColor(this); saveData(); });
-            
-            // Enter Key shortcut
-            const remarkInput = newRow.querySelector('.task-remark');
-            remarkInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); 
-                    createNewTaskRow(); 
-                    saveData();
-                    setTimeout(() => {
-                        const rows = document.querySelectorAll('.task-row');
-                        const lastRow = rows[rows.length - 1];
-                        if(lastRow) lastRow.querySelector('.task-detail').focus();
-                    }, 50);
-                }
-            });
-
-            const inputs = newRow.querySelectorAll('input');
-            inputs.forEach(input => input.addEventListener('input', saveData));
-            taskList.appendChild(newRow);
-        }
-
-        function updateStatusColor(selectElement) {
-            selectElement.classList.remove('status-ok', 'status-ng', 'status-pending', 'status-waiting');
-            const val = selectElement.value;
-            if(val === 'OK') selectElement.classList.add('status-ok');
-            else if(val === 'NG') selectElement.classList.add('status-ng');
-            else if(val === 'Pending' || val === 'In Progress') selectElement.classList.add('status-pending');
-            else if(val === 'Waiting') selectElement.classList.add('status-waiting');
-        }
-
-        addTaskButton.addEventListener('click', () => { createNewTaskRow(); saveData(); });
-
-        taskList.addEventListener('click', function(e) {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const row = btn.closest('.task-row');
-            if (!row) return;
-            if (btn.classList.contains('remove-task-button')) {
-                row.remove(); saveData();
-            } else if (btn.classList.contains('move-up-btn')) {
-                if (row.previousElementSibling) { taskList.insertBefore(row, row.previousElementSibling); saveData(); }
-            } else if (btn.classList.contains('move-down-btn')) {
-                if (row.nextElementSibling) { taskList.insertBefore(row.nextElementSibling, row); saveData(); }
-            }
-        });
-
-        function getDataFromForm() {
-            const data = {
-                workBom: document.getElementById('workBom').value,
-                projectName: document.getElementById('projectName').value,
-                problems: document.getElementById('problems').value,
-                tasks: []
-            };
-            document.querySelectorAll('#task-list .task-row').forEach(row => {
-                data.tasks.push({
-                    detail: row.querySelector('.task-detail').value,
-                    status: row.querySelector('.task-status').value,
-                    remark: row.querySelector('.task-remark').value
-                });
-            });
-            return data;
-        }
-
-        function saveData() {
-            const data = getDataFromForm();
-            localStorage.setItem('reportData', JSON.stringify(data));
-        }
-
-        function loadData() {
-            const savedData = localStorage.getItem('reportData');
-            if (savedData) {
-                restoreData(JSON.parse(savedData));
-            } else { createNewTaskRow(); }
-        }
-
-        function restoreData(data) {
-            document.getElementById('workBom').value = data.workBom || '';
-            document.getElementById('projectName').value = data.projectName || '';
-            document.getElementById('problems').value = data.problems || '';
-            taskList.innerHTML = '';
-            if (data.tasks && data.tasks.length > 0) {
-                data.tasks.forEach(task => createNewTaskRow(task.detail, task.status, task.remark));
-            } else { createNewTaskRow(); }
-            saveData(); 
-        }
-
-        function saveToHistory() {
-            const currentData = getDataFromForm();
-            if (!currentData.workBom && !currentData.projectName && currentData.tasks.length <= 1 && !currentData.tasks[0].detail) return;
-            let history = JSON.parse(localStorage.getItem('reportHistory') || '[]');
-            const now = new Date();
-            const timestamp = now.toLocaleString('th-TH');
-            const historyItem = { timestamp: timestamp, data: currentData };
-            history.unshift(historyItem);
-            if (history.length > 20) history.pop();
-            localStorage.setItem('reportHistory', JSON.stringify(history));
-        }
-
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('reportHistory') || '[]');
-            historyList.innerHTML = '';
-            if (history.length === 0) {
-                historyList.innerHTML = '<div style="padding:20px;color:#888;text-align:center;">ยังไม่มีประวัติรีพอร์ต</div>';
-                return;
-            }
-            history.forEach((item) => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                let title = item.data.projectName || 'ไม่มีชื่อโปรเจกต์';
-                let subtitle = item.data.workBom || 'No BOM';
-                div.innerHTML = `
-                    <div class="history-date">${item.timestamp}</div>
-                    <div class="history-project">${title}</div>
-                    <div class="history-bom">${subtitle}</div>
-                `;
-                div.addEventListener('click', () => {
-                    pendingRestoreData = item.data;
-                    openConfirmModal('restoreHistory', item.timestamp);
-                });
-                historyList.appendChild(div);
-            });
-        }
-
-        historyBtn.addEventListener('click', () => { renderHistory(); historyModal.classList.add('active'); });
-        closeHistoryBtn.addEventListener('click', () => historyModal.classList.remove('active'));
-
-        function openConfirmModal(actionType, extraText = '') {
-            pendingAction = actionType;
-            confirmModal.classList.add('active');
-            confirmModalBtn.className = 'btn-confirm';
-            confirmModalBtn.innerText = 'ยืนยัน';
-
-            if (actionType === 'resetAll') {
-                confirmIcon.innerText = '🗑️';
-                modalTitle.innerText = 'ล้างข้อมูลทั้งหมด?';
-                modalDesc.innerHTML = 'BOM, Project, และงานทั้งหมดจะหายไป<br>ต้องการเริ่มใหม่ใช่หรือไม่?';
-            } else if (actionType === 'clearTasks') {
-                confirmIcon.innerText = '🧹';
-                modalTitle.innerText = 'ล้างเฉพาะงาน?';
-                modalDesc.innerHTML = 'เลข BOM และชื่อ Project จะยังอยู่<br>แต่รายการงานและปัญหาจะถูกลบ';
-            } else if (actionType === 'restoreHistory') {
-                confirmIcon.innerText = '📂';
-                confirmModalBtn.classList.add('btn-restore'); 
-                confirmModalBtn.innerText = 'โหลดข้อมูล';
-                modalTitle.innerText = 'โหลดรีพอร์ตเก่า?';
-                modalDesc.innerHTML = `ต้องการกู้คืนข้อมูลจากวันที่<br><b>${extraText}</b> ใช่หรือไม่?<br>(ข้อมูลปัจจุบันจะถูกแทนที่)`;
-            }
-        }
-
-        resetAllBtn.addEventListener('click', () => openConfirmModal('resetAll'));
-        clearTasksBtn.addEventListener('click', () => openConfirmModal('clearTasks'));
-        cancelModalBtn.addEventListener('click', () => confirmModal.classList.remove('active'));
-        
-        confirmModalBtn.addEventListener('click', function() {
-            if (pendingAction === 'resetAll') {
-                document.getElementById('workBom').value = '';
-                document.getElementById('projectName').value = '';
-                document.getElementById('problems').value = '';
-                taskList.innerHTML = '';
-                createNewTaskRow();
-            } else if (pendingAction === 'clearTasks') {
-                document.getElementById('problems').value = '';
-                taskList.innerHTML = '';
-                createNewTaskRow();
-            } else if (pendingAction === 'restoreHistory') {
-                if (pendingRestoreData) {
-                    restoreData(pendingRestoreData);
-                    historyModal.classList.remove('active');
-                }
-            }
-            saveData();
-            document.getElementById('output').value = '';
-            confirmModal.classList.remove('active');
-        });
-        
-        window.addEventListener('click', (e) => {
-            if (e.target === confirmModal) confirmModal.classList.remove('active');
-            if (e.target === historyModal) historyModal.classList.remove('active');
-        });
-
-        document.getElementById('workBom').addEventListener('input', saveData);
-        document.getElementById('projectName').addEventListener('input', saveData);
-        document.getElementById('problems').addEventListener('input', saveData);
-        loadData();
-
-        document.getElementById('copyButton').addEventListener('click', function() {
-            saveToHistory();
-            const data = getDataFromForm();
-            const parts = [];
-            const longSeparator = '------------------------------'; 
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
-            
-            parts.push(`📅 รายงานวันที่: ${dateStr}`);
-            if (data.workBom) parts.push(`🔖 Work BOM : ${data.workBom}`);
-            if (data.projectName) parts.push(`🏷️ Project : ${data.projectName}`);
-            if (data.workBom || data.projectName) parts.push(`${longSeparator}`); 
-            
-            parts.push('✅ **รายละเอียดงาน**');
-            
-            if (data.tasks.length > 0) {
-                let hasTasks = false;
-                data.tasks.forEach((task, i) => { 
-                    if (task.detail) {
-                        hasTasks = true;
-                        const taskNumber = i + 1; 
-                        parts.push(`${taskNumber}. ${task.detail}`); 
-                        parts.push(`   🚦 Status: ${task.status}`); 
-                        if (task.remark && task.remark !== '-') parts.push(`   💬 Remark: ${task.remark}`); 
-                    }
-                });
-                if (!hasTasks) parts.push('- ไม่มีรายการ -');
-            } else { parts.push('- ไม่มีรายการ -'); }
-            
-            if (data.problems) {
-                parts.push(`${longSeparator}`); 
-                parts.push('📌 **ปัญหา**');
-                parts.push(data.problems);
-            }
-
-            const reportText = parts.join('\n').trim(); 
-            const outputArea = document.getElementById('output');
-            outputArea.value = reportText;
-
-            navigator.clipboard.writeText(reportText).then(() => {
-                showToast();
-            }).catch(err => {
-                console.error('Copy failed', err);
-                alert('Copy Error');
-            });
-        });
-
-        function showToast() {
-            toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-    </script>
-
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
