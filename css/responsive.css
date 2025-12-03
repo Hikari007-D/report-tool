@@ -1,0 +1,138 @@
+/* ================================================
+   Responsive Design - Mobile Optimization
+   ================================================ */
+
+/* Mobile Adjustments (≤ 600px) */
+@media (max-width: 600px) {
+    /* Header Buttons */
+    .header-buttons {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-content: flex-end;
+        margin-bottom: 5px;
+    }
+
+    /* Typography */
+    h1 {
+        margin-top: 0;
+        font-size: var(--font-2xl);
+    }
+
+    /* Task List - Convert to Card Layout */
+    .task-list-header {
+        display: none;
+    }
+
+    .task-row {
+        flex-direction: column;
+        gap: 10px;
+        background-color: var(--task-bg);
+        padding: var(--spacing-md);
+        border-radius: 10px;
+        border: 1px solid var(--input-border);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .task-row .task-detail,
+    .task-row .task-status,
+    .task-row .task-remark {
+        width: 100%;
+        flex: none;
+    }
+
+    .task-actions {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 5px;
+    }
+
+    button.icon-btn {
+        flex: 1;
+        height: 40px;
+        font-size: var(--font-lg);
+    }
+
+    /* Container Padding */
+    .container {
+        padding: var(--spacing-md);
+    }
+
+    body {
+        padding: var(--spacing-sm);
+    }
+
+    /* Modal */
+    .modal-content {
+        padding: var(--spacing-xl);
+        max-width: 95%;
+    }
+
+    /* Buttons */
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    button.secondary-btn {
+        width: 100%;
+    }
+}
+
+/* Tablet (601px - 900px) */
+@media (min-width: 601px) and (max-width: 900px) {
+    .container {
+        max-width: 90%;
+    }
+}
+
+/* Large Desktop (> 1200px) */
+@media (min-width: 1201px) {
+    .container {
+        max-width: 900px;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    button:focus,
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: 3px solid currentColor;
+        outline-offset: 3px;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    .header-buttons,
+    .action-buttons,
+    button#copyButton,
+    button#addTaskButton,
+    .task-actions {
+        display: none !important;
+    }
+
+    .container {
+        box-shadow: none;
+        max-width: 100%;
+    }
+
+    .modal-overlay {
+        display: none !important;
+    }
+}
