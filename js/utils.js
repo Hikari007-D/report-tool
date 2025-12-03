@@ -5,16 +5,13 @@
 
 /**
  * Validate Work BOM format
- * Expected format: WB-S####-####-A (example: WB-S2407-0105-A)
+ * Note: Validation disabled - accepts any format
  * @param {string} value - The Work BOM value to validate
- * @returns {boolean} - True if valid
+ * @returns {boolean} - Always returns true
  */
 export function validateWorkBom(value) {
-    if (!value || value.trim() === '') return true; // Optional field
-    
-    // Flexible pattern: allows variations but maintains general structure
-    const pattern = /^WB-[A-Z]\d{4}-\d{4}-[A-Z]$/i;
-    return pattern.test(value.trim());
+    // No validation - accept any format
+    return true;
 }
 
 /**
