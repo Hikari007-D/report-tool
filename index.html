@@ -1,214 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="./">
-    <meta name="description" content="เครื่องมือสร้างรีพอร์ตงานอัตโนมัติ สำหรับบันทึกและจัดการรายงานการทำงานประจำวัน">
-    <meta name="keywords" content="report generator, รายงาน, work report, BOM">
-    <meta name="author" content="Report Generator Team">
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="./" />
+    <meta
+      name="description"
+      content="เครื่องมือสร้างรีพอร์ตงานอัตโนมัติ สำหรับบันทึกและจัดการรายงานการทำงานประจำวัน"
+    />
+    <meta
+      name="keywords"
+      content="report generator, รายงาน, work report, BOM"
+    />
+    <meta name="author" content="Report Generator Team" />
+
     <title>ตัวสร้างรีพอร์ต | Report Generator</title>
-    
+
     <!-- CSS Files -->
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/responsive.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+  <body>
     <!-- Skip to content for accessibility -->
     <a href="#main-content" class="skip-to-content">ข้ามไปยังเนื้อหา</a>
 
     <div class="container" id="main-content">
-        <!--Header Buttons -->
-        <div class="header-buttons">
-            <button 
-                class="icon-round-btn" 
-                id="historyBtn" 
-                title="ประวัติรีพอร์ต"
-                aria-label="เปิดประวัติรีพอร์ต"
-            >📜</button>
-            <button 
-                class="icon-round-btn" 
-                id="themeToggle" 
-                title="เปลี่ยนโหมดมืด/สว่าง"
-                aria-label="สลับโหมดมืด/สว่าง"
-            >🌓</button>
-        </div>
+      <!--Header Buttons -->
+      <div class="header-buttons">
+        <button
+          class="icon-round-btn"
+          id="historyBtn"
+          title="ประวัติรีพอร์ต"
+          aria-label="เปิดประวัติรีพอร์ต"
+        >
+          📜
+        </button>
+        <button
+          class="icon-round-btn"
+          id="themeToggle"
+          title="เปลี่ยนโหมดมืด/สว่าง"
+          aria-label="สลับโหมดมืด/สว่าง"
+        >
+          🌓
+        </button>
+      </div>
 
-        <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
+      <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
 
-        <!-- Work BOM Input -->
-        <div class="form-group">
-            <label for="workBom">Work BOM</label>
-            <input 
-                type="text" 
-                id="workBom" 
-                placeholder="ระบุ Work BOM"
-            >
-        </div>
+      <!-- Work BOM Input -->
+      <div class="form-group">
+        <label for="workBom">Work BOM</label>
+        <input type="text" id="workBom" placeholder="ระบุ Work BOM" />
+      </div>
 
-        <!-- Project Name Input -->
-        <div class="form-group">
-            <label for="projectName">ชื่อ Project</label>
-            <input 
-                type="text" 
-                id="projectName" 
-                placeholder="PROJECT MACHINE WASHING SOLENOID 1W ( MC.1 )"
-                maxlength="200"
-            >
-        </div>
+      <!-- Project Name Input -->
+      <div class="form-group">
+        <label for="projectName">ชื่อ Project</label>
+        <input
+          type="text"
+          id="projectName"
+          placeholder="PROJECT MACHINE WASHING SOLENOID 1W ( MC.1 )"
+          maxlength="200"
+        />
+      </div>
 
-        <!-- Remark Options Datalist -->
-        <datalist id="remarkOptions">
-            <option value="รอเทสช่วงบ่าย">
-            <option value="ติดตั้งเสร็จสิ้น">
-            <option value="แก้ไขเรียบร้อย">
-            <option value="เจอปัญหาหน้างาน">
-            <option value="ระบบขัดข้อง">
-            <option value="รอคำตอบจากลูกค้า">
-            <option value="กำลังดำเนินการ">
-        </datalist>
+      <!-- Remark Options Datalist -->
+      <datalist id="remarkOptions">
+        <option value="รอเทสช่วงบ่าย"></option>
+        <option value="ติดตั้งเสร็จสิ้น"></option>
+        <option value="แก้ไขเรียบร้อย"></option>
+        <option value="เจอปัญหาหน้างาน"></option>
+        <option value="ระบบขัดข้อง"></option>
+        <option value="รอคำตอบจากลูกค้า"></option>
+        <option value="กำลังดำเนินการ"></option>
+      </datalist>
 
-        <!-- Task List Section -->
-        <div class="form-group">
-            <label>รายละเอียดงาน (Detail)</label>
-            
-            <!-- Task List Header (Desktop) -->
-            <div class="task-list-header" role="row" aria-label="หัวตารางรายการงาน">
-                <div class="detail-header" role="columnheader">Detail</div>
-                <div class="status-header" role="columnheader">Status</div>
-                <div class="remark-header" role="columnheader">Remark</div>
-                <div class="action-header" role="columnheader">Actions</div>
-            </div>
-            
-            <!-- Task List Container -->
-            <div 
-                id="task-list" 
-                role="list" 
-                aria-label="รายการงาน"
-            ></div>
-            
-            <!-- Add Task Button -->
-            <button 
-                type="button" 
-                id="addTaskButton"
-                aria-label="เพิ่มรายการงานใหม่"
-            >➕ เพิ่มรายการงาน</button>
-        </div>
+      <!-- Task List Section -->
+      <div class="form-group">
+        <label>รายละเอียดงาน (<span id="taskCount">0</span> รายการ)</label>
 
-        <!-- Problems Section -->
-        <div class="form-group">
-            <label for="problems">📌 ปัญหา (Problems)</label>
-            <textarea 
-                id="problems" 
-                rows="4" 
-                placeholder="1._&#10;2._"
-                aria-describedby="problems-hint"
-            ></textarea>
-            <small id="problems-hint" style="font-size: 12px; color: #888;">
-                ระบุปัญหาที่พบ (ถ้ามี)
-            </small>
-        </div>
+        <!-- Task List Container -->
+        <div id="task-list" role="list" aria-label="รายการงาน"></div>
 
-        <!-- Copy Button -->
-        <button 
-            id="copyButton"
-            aria-label="สร้างและคัดลอกรีพอร์ต"
-        >📋 สร้างและคัดลอก (Generate &amp; Copy)</button>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button 
-                id="clearTasksBtn" 
-                class="secondary-btn"
-                aria-label="ล้างเฉพาะรายการงาน"
-            >🧹 ล้างเฉพาะงาน</button>
-            <button 
-                id="resetAllBtn" 
-                class="secondary-btn"
-                aria-label="ล้างข้อมูลทั้งหมด"
-            >🗑️ ล้างทั้งหมด</button>
-        </div>
+        <!-- Add Task Button -->
+        <button
+          type="button"
+          id="addTaskButton"
+          aria-label="เพิ่มรายการงานใหม่"
+        >
+          ➕ เพิ่มรายการงาน
+        </button>
+      </div>
 
-        <!-- Output Preview -->
-        <div class="form-group">
-            <label for="output">ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
-            <textarea 
-                id="output" 
-                rows="10" 
-                readonly
-                aria-label="ตัวอย่างรีพอร์ต"
-            ></textarea>
-        </div>
+      <!-- Problems Section -->
+      <div class="form-group">
+        <label for="problems">📌 ปัญหา (Problems)</label>
+        <textarea
+          id="problems"
+          rows="4"
+          placeholder="1._&#10;2._"
+          aria-describedby="problems-hint"
+        ></textarea>
+        <small id="problems-hint" class="hint-text">
+          ระบุปัญหาที่พบ (ถ้ามี)
+        </small>
+      </div>
+
+      <!-- Copy Button -->
+      <button id="copyButton" aria-label="สร้างและคัดลอกรีพอร์ต">
+        📋 สร้างและคัดลอก (Generate &amp; Copy)
+      </button>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button
+          id="clearTasksBtn"
+          class="secondary-btn"
+          aria-label="ล้างเฉพาะรายการงาน"
+        >
+          🧹 ล้างเฉพาะงาน
+        </button>
+        <button
+          id="resetAllBtn"
+          class="secondary-btn"
+          aria-label="ล้างข้อมูลทั้งหมด"
+        >
+          🗑️ ล้างทั้งหมด
+        </button>
+      </div>
+
+      <!-- Export/Import Buttons -->
+      <div class="action-buttons" style="margin-top: 8px">
+        <button id="exportBtn" class="secondary-btn" aria-label="ส่งออกข้อมูล">
+          📥 Export ข้อมูล
+        </button>
+        <button id="importBtn" class="secondary-btn" aria-label="นำเข้าข้อมูล">
+          📤 Import ข้อมูล
+        </button>
+        <input type="file" id="importFile" accept=".json" hidden />
+      </div>
+
+      <!-- Output Preview -->
+      <div class="form-group">
+        <label for="output">ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
+        <textarea
+          id="output"
+          rows="10"
+          readonly
+          aria-label="ตัวอย่างรีพอร์ต"
+        ></textarea>
+      </div>
     </div>
 
     <!-- Confirm Modal -->
-    <div 
-        id="confirmModal" 
-        class="modal-overlay" 
-        role="dialog" 
-        aria-modal="true"
-        aria-labelledby="modalTitle"
-        aria-describedby="modalDesc"
-        aria-hidden="true"
+    <div
+      id="confirmModal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalDesc"
+      aria-hidden="true"
     >
-        <div class="modal-content">
-            <span class="modal-icon" id="confirmIcon" aria-hidden="true">⚠️</span>
-            <div class="modal-title" id="modalTitle">ยืนยัน?</div>
-            <div class="modal-desc" id="modalDesc">รายละเอียด...</div>
-            <div class="modal-buttons">
-                <button 
-                    id="cancelModalBtn" 
-                    class="btn-cancel"
-                    aria-label="ยกเลิก"
-                >ยกเลิก</button>
-                <button 
-                    id="confirmModalBtn" 
-                    class="btn-confirm"
-                    aria-label="ยืนยัน"
-                >ยืนยัน</button>
-            </div>
+      <div class="modal-content">
+        <span class="modal-icon" id="confirmIcon" aria-hidden="true">⚠️</span>
+        <div class="modal-title" id="modalTitle">ยืนยัน?</div>
+        <div class="modal-desc" id="modalDesc">รายละเอียด...</div>
+        <div class="modal-buttons">
+          <button id="cancelModalBtn" class="btn-cancel" aria-label="ยกเลิก">
+            ยกเลิก
+          </button>
+          <button id="confirmModalBtn" class="btn-confirm" aria-label="ยืนยัน">
+            ยืนยัน
+          </button>
         </div>
+      </div>
     </div>
 
     <!-- History Modal -->
-    <div 
-        id="historyModal" 
-        class="modal-overlay"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="historyModalTitle"
-        aria-hidden="true"
+    <div
+      id="historyModal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="historyModalTitle"
+      aria-hidden="true"
     >
-        <div class="modal-content">
-            <div class="modal-title" id="historyModalTitle">📜 ประวัติรีพอร์ต</div>
-            <div style="font-size: 14px; color: #888; margin-bottom: 10px;">
-                คลิกเพื่อโหลดข้อมูลเก่ากลับมาแก้ไข
-            </div>
-            <div 
-                id="historyList" 
-                role="list" 
-                aria-label="รายการประวัติรีพอร์ต"
-            ></div>
-            <button 
-                id="closeHistoryBtn" 
-                class="btn-close"
-                aria-label="ปิดหน้าต่าง"
-            >ปิดหน้าต่าง</button>
-        </div>
+      <div class="modal-content">
+        <div class="modal-title" id="historyModalTitle">📜 ประวัติรีพอร์ต</div>
+        <div class="modal-subtitle">คลิกเพื่อโหลดข้อมูลเก่ากลับมาแก้ไข</div>
+        <div
+          id="historyList"
+          role="list"
+          aria-label="รายการประวัติรีพอร์ต"
+        ></div>
+        <button id="closeHistoryBtn" class="btn-close" aria-label="ปิดหน้าต่าง">
+          ปิดหน้าต่าง
+        </button>
+      </div>
     </div>
 
     <!-- Toast Notification -->
-    <div 
-        id="toast" 
-        role="alert" 
-        aria-live="polite"
-        aria-atomic="true"
-    >✅ คัดลอกเรียบร้อยพร้อมวาง!</div>
+    <div id="toast" role="alert" aria-live="polite" aria-atomic="true">
+      ✅ คัดลอกเรียบร้อยพร้อมวาง!
+    </div>
 
     <!-- JavaScript Modules -->
     <script type="module" src="js/app.js"></script>
-</body>
+  </body>
 </html>
