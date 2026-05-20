@@ -55,6 +55,7 @@ label {
 }
 
 input[type="text"],
+input[type="date"],
 textarea,
 select {
     width: 100%;
@@ -65,15 +66,30 @@ select {
     border-radius: var(--radius-md);
     font-size: var(--font-base);
     font-family: inherit;
-    transition: border-color var(--transition-fast), 
+    transition: border-color var(--transition-fast),
                 background-color var(--transition-normal);
+    /* Prevent iOS auto-zoom on focus (requires >= 16px) */
+    -webkit-text-size-adjust: 100%;
 }
 
 input[type="text"]:focus,
+input[type="date"]:focus,
 textarea:focus,
 select:focus {
     border-color: var(--primary-color);
     outline: none;
+}
+
+/* iOS date input visual fix */
+input[type="date"] {
+    min-height: 48px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Dark-mode: invert calendar icon so it's visible */
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 textarea {

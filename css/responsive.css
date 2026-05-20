@@ -2,24 +2,58 @@
    Responsive Design - Mobile Optimization
    ================================================ */
 
-/* Mobile Adjustments (≤ 600px) */
+/* === MOBILE (≤ 600px) === */
 @media (max-width: 600px) {
-  /* Header Buttons */
+  /* Body / Container */
+  body {
+    padding: var(--spacing-xs);
+  }
+
+  .container {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    /* Leave space for sticky bottom CTA */
+    padding-bottom: 80px;
+  }
+
+  /* Header */
+  h1 {
+    margin-top: 0;
+    font-size: var(--font-xl);
+  }
+
   .header-buttons {
     position: relative;
     top: auto;
     right: auto;
     justify-content: flex-end;
-    margin-bottom: 5px;
+    margin-bottom: var(--spacing-xs);
   }
 
-  /* Typography */
-  h1 {
-    margin-top: 0;
-    font-size: var(--font-2xl);
+  .icon-round-btn {
+    width: 44px;
+    height: 44px;
   }
 
-  /* Task Cards - Mobile */
+  /* Labels & form */
+  label {
+    font-size: var(--font-md);
+  }
+
+  .form-group {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  /* Inputs — 16px minimum prevents iOS auto-zoom */
+  input[type="text"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: 16px;
+    padding: var(--spacing-md);
+  }
+
+  /* Task Cards */
   .task-list-header {
     display: none;
   }
@@ -30,6 +64,7 @@
 
   .task-card-row {
     flex-direction: column;
+    gap: var(--spacing-md);
   }
 
   .task-field-status {
@@ -41,52 +76,114 @@
     gap: var(--spacing-sm);
   }
 
+  /* Bigger touch targets (Apple HIG: 44px, Material: 48dp) */
   button.icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     font-size: var(--font-lg);
   }
 
-  /* Container Padding */
-  .container {
+  /* Line cards (tomorrow plans) — keep horizontal but tighter */
+  .line-card {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .line-card .line-num {
+    font-size: var(--font-sm);
+    padding-top: 10px;
+  }
+
+  /* Problem cards */
+  .problem-card {
     padding: var(--spacing-md);
   }
 
-  body {
-    padding: var(--spacing-sm);
+  /* Output preview */
+  #output {
+    font-size: var(--font-sm);
+    min-height: 200px;
   }
 
-  /* Modal */
+  /* Modals — full screen on tiny phones */
   .modal-content {
-    padding: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    width: 95%;
     max-width: 95%;
+    max-height: 85vh;
   }
 
-  /* Buttons */
+  .modal-icon {
+    font-size: 36px;
+  }
+
+  .modal-title {
+    font-size: var(--font-lg);
+  }
+
+  /* Action button groups — stack vertically */
   .action-buttons {
     flex-direction: column;
+    gap: var(--spacing-sm);
   }
 
   button.secondary-btn {
     width: 100%;
+    min-height: 44px;
+    padding: var(--spacing-md);
+  }
+
+  button#addTaskButton,
+  button.add-line-btn {
+    min-height: 44px;
+  }
+
+  /* Sticky primary CTA on mobile — easier thumb reach */
+  button#copyButton {
+    position: sticky;
+    bottom: var(--spacing-sm);
+    z-index: 50;
+    margin-bottom: var(--spacing-sm);
+    min-height: 52px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  }
+
+  /* Toast — stay above sticky CTA */
+  #toast.show {
+    bottom: 110px;
   }
 }
 
-/* Tablet (601px - 900px) */
+/* === EXTRA SMALL (≤ 380px) — old/narrow phones === */
+@media (max-width: 380px) {
+  h1 {
+    font-size: var(--font-lg);
+  }
+
+  .container {
+    padding: var(--spacing-sm);
+  }
+
+  button#copyButton {
+    font-size: var(--font-base);
+  }
+}
+
+/* === TABLET (601-900px) === */
 @media (min-width: 601px) and (max-width: 900px) {
   .container {
     max-width: 90%;
   }
 }
 
-/* Large Desktop (> 1200px) */
+/* === DESKTOP (> 1200px) === */
 @media (min-width: 1201px) {
   .container {
     max-width: 900px;
   }
 }
 
-/* High Contrast Mode Support */
+/* === ACCESSIBILITY === */
 @media (prefers-contrast: high) {
   button:focus,
   input:focus,
@@ -97,36 +194,10 @@
   }
 }
 
-/* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* Print Styles */
-@media print {
-  body {
-    background: white;
-    color: black;
-  }
-
-  .header-buttons,
-  .action-buttons,
-  button#copyButton,
-  button#addTaskButton,
-  .task-actions {
-    display: none !important;
-  }
-
-  .container {
-    box-shadow: none;
-    max-width: 100%;
-  }
-
-  .modal-overlay {
-    display: none !important;
   }
 }
