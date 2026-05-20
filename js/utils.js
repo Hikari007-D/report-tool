@@ -46,11 +46,9 @@ export function escapeHTML(str) {
 }
 
 /**
- * Format date to Thai locale
- * @param {Date} date - Date object
- * @returns {string} - Formatted date string
+ * Format date to Thai locale (long form, e.g., "20 พฤษภาคม 2569")
  */
-export function formatDate(date) {
+export function formatDateThai(date) {
   if (!(date instanceof Date) || isNaN(date)) {
     date = new Date();
   }
@@ -60,6 +58,31 @@ export function formatDate(date) {
     month: "long",
     year: "numeric",
   });
+}
+
+// kept for backward compatibility (legacy callers)
+export const formatDate = formatDateThai;
+
+/**
+ * Format Date → ISO yyyy-mm-dd (for <input type="date">)
+ */
+export function formatDateISO(date) {
+  if (!(date instanceof Date) || isNaN(date)) date = new Date();
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Parse yyyy-mm-dd → Date (returns null if invalid)
+ */
+export function parseISODate(s) {
+  if (!s || typeof s !== "string") return null;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return isNaN(d) ? null : d;
 }
 
 /**

@@ -475,6 +475,106 @@ class UIManager {
   }
 
   /**
+   * Render tomorrow-plans list (simple line items)
+   */
+  renderPlans(plans, handlers) {
+    const list = document.getElementById("plan-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    plans.forEach((text, index) => {
+      const row = document.createElement("div");
+      row.className = "line-card";
+      row.dataset.index = index;
+      row.innerHTML = `
+        <span class="line-num">${index + 1}.</span>
+        <textarea
+          class="line-input"
+          rows="1"
+          placeholder="แผนงานพรุ่งนี้..."
+          maxlength="300"
+          aria-label="แผนงานที่ ${index + 1}"
+        >${escapeHTML(text || "")}</textarea>
+        <button type="button" class="icon-btn remove-line-btn" title="ลบ" aria-label="ลบแผนที่ ${index + 1}">🗑️</button>
+      `;
+
+      const input = row.querySelector(".line-input");
+      this.autoResizeTextarea(input);
+      input.addEventListener("input", (e) => {
+        this.autoResizeTextarea(e.target);
+        handlers.onUpdate(index, e.target.value);
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handlers.onAddNew();
+        }
+      });
+      row.querySelector(".remove-line-btn").addEventListener("click", () =>
+        handlers.onRemove(index),
+      );
+
+      list.appendChild(row);
+    });
+
+    const counter = document.getElementById("planCount");
+    if (counter) counter.textContent = plans.length;
+  }
+
+  /**
+   * Render paired problems list (problem + solution)
+   */
+  renderProblems(problems, handlers) {
+    const list = document.getElementById("problem-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    problems.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "problem-card";
+      row.dataset.index = index;
+      row.innerHTML = `
+        <div class="problem-card-header">
+          <span class="task-number">⛔ #${index + 1}</span>
+          <button type="button" class="icon-btn remove-problem-btn" title="ลบ" aria-label="ลบปัญหาที่ ${index + 1}">🗑️</button>
+        </div>
+        <div class="task-field">
+          <label class="task-field-label">⛔ ปัญหาที่พบ</label>
+          <textarea class="problem-input" rows="1" maxlength="500" placeholder="อธิบายปัญหา..."
+            aria-label="ปัญหาที่ ${index + 1}">${escapeHTML(item.problem || "")}</textarea>
+        </div>
+        <div class="task-field">
+          <label class="task-field-label">🛠️ วิธีแก้ไข</label>
+          <textarea class="solution-input" rows="1" maxlength="500" placeholder="วิธีแก้ไข / ทางเลือก..."
+            aria-label="วิธีแก้ปัญหาที่ ${index + 1}">${escapeHTML(item.solution || "")}</textarea>
+        </div>
+      `;
+
+      const problemInput = row.querySelector(".problem-input");
+      const solutionInput = row.querySelector(".solution-input");
+      this.autoResizeTextarea(problemInput);
+      this.autoResizeTextarea(solutionInput);
+
+      problemInput.addEventListener("input", (e) => {
+        this.autoResizeTextarea(e.target);
+        handlers.onUpdate(index, { problem: e.target.value });
+      });
+      solutionInput.addEventListener("input", (e) => {
+        this.autoResizeTextarea(e.target);
+        handlers.onUpdate(index, { solution: e.target.value });
+      });
+      row.querySelector(".remove-problem-btn").addEventListener("click", () =>
+        handlers.onRemove(index),
+      );
+
+      list.appendChild(row);
+    });
+
+    const counter = document.getElementById("problemCount");
+    if (counter) counter.textContent = problems.length;
+  }
+
+  /**
    * Update theme
    * @param {string} theme - 'light' or 'dark'
    */

@@ -540,6 +540,125 @@ select.invalid {
   border-color: var(--danger-color);
 }
 
+/* === LINE CARDS (tomorrow plans) === */
+.line-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  background-color: var(--task-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.line-card:hover {
+  border-color: var(--primary-color);
+}
+
+.line-card .line-num {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--primary-color);
+  padding-top: 6px;
+}
+
+.line-card .line-input {
+  flex: 1;
+  min-height: 36px;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+button.add-line-btn {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background-color: transparent;
+  border: 1px dashed var(--input-border);
+  color: var(--text-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  margin-top: var(--spacing-xs);
+  opacity: 0.8;
+}
+
+button.add-line-btn:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  opacity: 1;
+}
+
+/* === PROBLEM CARDS (paired problem + solution) === */
+.problem-card {
+  background-color: var(--task-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.problem-card:hover {
+  border-color: var(--danger-color);
+}
+
+.problem-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.problem-card textarea {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  min-height: 38px;
+  line-height: 1.4;
+}
+
+button.remove-problem-btn,
+button.remove-line-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--danger-color);
+  border: none;
+  cursor: pointer;
+}
+
+button.remove-problem-btn:hover,
+button.remove-line-btn:hover {
+  background-color: #ffe3e3;
+}
+
+/* === PRINT === */
+@media print {
+  .header-buttons,
+  .action-buttons,
+  #copyButton,
+  #addTaskButton,
+  .add-line-btn,
+  .remove-task-button,
+  .remove-line-btn,
+  .remove-problem-btn,
+  .task-actions,
+  .modal-overlay,
+  #toast {
+    display: none !important;
+  }
+  body { background: #fff !important; color: #000 !important; }
+  .container { box-shadow: none !important; max-width: 100% !important; }
+  textarea, input { border: 1px solid #ccc !important; background: #fff !important; }
+  #output { font-family: "Sarabun", "Tahoma", sans-serif; }
+}
+
 /* === UTILITY CLASSES === */
 .hint-text {
   font-size: 12px;

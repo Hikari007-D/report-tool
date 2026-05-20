@@ -49,15 +49,21 @@
 
       <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
 
+      <!-- Report Date -->
+      <div class="form-group">
+        <label for="reportDate">📅 รายงานวันที่</label>
+        <input type="date" id="reportDate" />
+      </div>
+
       <!-- Work BOM Input -->
       <div class="form-group">
-        <label for="workBom">Work BOM</label>
+        <label for="workBom">🔖 Work BOM</label>
         <input type="text" id="workBom" placeholder="ระบุ Work BOM" />
       </div>
 
       <!-- Project Name Input -->
       <div class="form-group">
-        <label for="projectName">ชื่อ Project</label>
+        <label for="projectName">🏷️ ชื่อ Project</label>
         <input
           type="text"
           id="projectName"
@@ -79,7 +85,10 @@
 
       <!-- Task List Section -->
       <div class="form-group">
-        <label>รายละเอียดงาน (<span id="taskCount">0</span> รายการ)</label>
+        <label>🟢 รายละเอียดงาน (<span id="taskCount">0</span> รายการ)</label>
+        <small class="hint-text">
+          เลือก Status = OK → แสดงเป็น ✅ สำเร็จ / NG → แสดงเป็น ❌ ไม่สำเร็จ
+        </small>
 
         <!-- Task List Container -->
         <div id="task-list" role="list" aria-label="รายการงาน"></div>
@@ -94,18 +103,41 @@
         </button>
       </div>
 
-      <!-- Problems Section -->
+      <!-- Tomorrow Plans Section -->
       <div class="form-group">
-        <label for="problems">📌 ปัญหา (Problems)</label>
+        <label>🔵 แผนงานของวันพรุ่งนี้ (<span id="planCount">0</span> รายการ)</label>
+        <div id="plan-list" role="list" aria-label="แผนงานพรุ่งนี้"></div>
+        <button type="button" id="addPlanButton" class="add-line-btn">
+          ➕ เพิ่มแผนงาน
+        </button>
+      </div>
+
+      <!-- Problems Section (paired list) -->
+      <div class="form-group">
+        <label>🔴 แจ้งปัญหา และทางเลือกในการแก้ไข (<span id="problemCount">0</span> รายการ)</label>
+        <div id="problem-list" role="list" aria-label="รายการปัญหา"></div>
+        <button type="button" id="addProblemButton" class="add-line-btn">
+          ➕ เพิ่มปัญหา
+        </button>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="form-group">
+        <label for="helpNeeded">📋 ต้องการความช่วยเหลือ</label>
         <textarea
-          id="problems"
-          rows="4"
-          placeholder="1._&#10;2._"
-          aria-describedby="problems-hint"
+          id="helpNeeded"
+          rows="3"
+          placeholder="เช่น จัดหาวัสดุอุปกรณ์, ขอกำลังคนเพิ่ม (เว้นว่างได้)"
         ></textarea>
-        <small id="problems-hint" class="hint-text">
-          ระบุปัญหาที่พบ (ถ้ามี)
-        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="suggestions">💡 ข้อเสนอแนะ</label>
+        <textarea
+          id="suggestions"
+          rows="3"
+          placeholder="ข้อเสนอแนะต่าง ๆ (เว้นว่างได้)"
+        ></textarea>
       </div>
 
       <!-- Copy Button -->
@@ -113,8 +145,21 @@
         📋 สร้างและคัดลอก (Generate &amp; Copy)
       </button>
 
+      <!-- Share / Export Buttons -->
+      <div class="action-buttons" style="margin-top: 8px">
+        <button id="shareLineBtn" class="secondary-btn" aria-label="แชร์ไปยัง LINE">
+          💬 แชร์ LINE
+        </button>
+        <button id="exportMdBtn" class="secondary-btn" aria-label="บันทึกเป็น Markdown">
+          📝 Save .md
+        </button>
+        <button id="printBtn" class="secondary-btn" aria-label="พิมพ์/บันทึก PDF">
+          🖨️ Print/PDF
+        </button>
+      </div>
+
       <!-- Action Buttons -->
-      <div class="action-buttons">
+      <div class="action-buttons" style="margin-top: 8px">
         <button
           id="clearTasksBtn"
           class="secondary-btn"
@@ -133,11 +178,11 @@
 
       <!-- Export/Import Buttons -->
       <div class="action-buttons" style="margin-top: 8px">
-        <button id="exportBtn" class="secondary-btn" aria-label="ส่งออกข้อมูล">
-          📥 Export ข้อมูล
+        <button id="exportBtn" class="secondary-btn" aria-label="ส่งออกข้อมูล JSON">
+          📥 Export JSON
         </button>
-        <button id="importBtn" class="secondary-btn" aria-label="นำเข้าข้อมูล">
-          📤 Import ข้อมูล
+        <button id="importBtn" class="secondary-btn" aria-label="นำเข้าข้อมูล JSON">
+          📤 Import JSON
         </button>
         <input type="file" id="importFile" accept=".json" hidden />
       </div>
@@ -147,7 +192,7 @@
         <label for="output">ตัวอย่างรีพอร์ตที่จะคัดลอก:</label>
         <textarea
           id="output"
-          rows="10"
+          rows="16"
           readonly
           aria-label="ตัวอย่างรีพอร์ต"
         ></textarea>

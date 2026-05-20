@@ -3,54 +3,41 @@
  * Central state management for report data
  */
 
-import { validateWorkBom, validateProjectName, formatDate } from './utils.js';
+import { validateWorkBom, validateProjectName, formatDateThai, formatDateISO, parseISODate } from './utils.js';
 import { taskManager } from './TaskManager.js';
 import { storageManager } from './StorageManager.js';
+
+const SEPARATOR = '------------------------------';
 
 class ReportManager {
     constructor() {
         this.state = {
+            reportDate: formatDateISO(new Date()),
             workBom: '',
             projectName: '',
-            problems: ''
+            tomorrowPlans: [],     // string[]
+            problemsList: [],      // { problem: string, solution: string }[]
+            helpNeeded: '',
+            suggestions: ''
         };
-        
+
         this.listeners = [];
     }
 
-    /**
-     * Add a change listener
-     * @param {Function} callback - Callback function
-     */
     onChange(callback) {
         this.listeners.push(callback);
     }
 
-    /**
-     * Notify all listeners
-     */
     notifyListeners() {
         this.listeners.forEach(callback => callback(this.state));
     }
 
-    /**
-     * Set state
-     * @param {Object} updates - State updates
-     */
     setState(updates) {
-        this.state = {
-            ...this.state,
-            ...updates
-        };
-        
+        this.state = { ...this.state, ...updates };
         this.notifyListeners();
         this.save();
     }
 
-    /**
-     * Get current state
-     * @returns {Object} - Current state
-     */
     getState() {
         return {
             ...this.state,
@@ -58,250 +45,268 @@ class ReportManager {
         };
     }
 
-    /**
-     * Validate current state
-     * @returns {Object} - {valid: boolean, errors: Array}
-     */
+    // --- Plans (tomorrow) ---
+    addPlan(text = '') {
+        this.state.tomorrowPlans.push(text);
+        this.notifyListeners();
+        this.save();
+    }
+
+    updatePlan(index, text) {
+        if (index < 0 || index >= this.state.tomorrowPlans.length) return;
+        this.state.tomorrowPlans[index] = text;
+        this.save();
+    }
+
+    removePlan(index) {
+        if (index < 0 || index >= this.state.tomorrowPlans.length) return;
+        this.state.tomorrowPlans.splice(index, 1);
+        this.notifyListeners();
+        this.save();
+    }
+
+    // --- Problems (paired) ---
+    addProblem(problem = '', solution = '') {
+        this.state.problemsList.push({ problem, solution });
+        this.notifyListeners();
+        this.save();
+    }
+
+    updateProblem(index, updates) {
+        if (index < 0 || index >= this.state.problemsList.length) return;
+        this.state.problemsList[index] = { ...this.state.problemsList[index], ...updates };
+        this.save();
+    }
+
+    removeProblem(index) {
+        if (index < 0 || index >= this.state.problemsList.length) return;
+        this.state.problemsList.splice(index, 1);
+        this.notifyListeners();
+        this.save();
+    }
+
     validate() {
         const errors = [];
-        
-        // Validate Work BOM
+
         if (this.state.workBom && !validateWorkBom(this.state.workBom)) {
-            errors.push({
-                field: 'workBom',
-                message: 'รูปแบบ Work BOM ไม่ถูกต้อง (ตัวอย่าง: WB-S2407-0105-A)'
-            });
+            errors.push({ field: 'workBom', message: 'รูปแบบ Work BOM ไม่ถูกต้อง' });
         }
-        
-        // Validate Project Name
+
         if (this.state.projectName && !validateProjectName(this.state.projectName)) {
-            errors.push({
-                field: 'projectName',
-                message: 'ชื่อโปรเจกต์ต้องมีความยาว 3-200 ตัวอักษร'
-            });
+            errors.push({ field: 'projectName', message: 'ชื่อโปรเจกต์ต้องมีความยาว 3-200 ตัวอักษร' });
         }
-        
-        // Validate tasks
+
         const taskValidation = taskManager.validate();
         if (!taskValidation.valid) {
             errors.push(...taskValidation.errors);
         }
-        
-        return {
-            valid: errors.length === 0,
-            errors
-        };
+
+        return { valid: errors.length === 0, errors };
     }
 
     /**
-     * Generate report text
-     * @returns {string} - Formatted report
+     * Generate report text matching team template
      */
     generateReport() {
         const data = this.getState();
         const parts = [];
-        const separator = '------------------------------';
-        const dateStr = formatDate(new Date());
-        
+        const date = parseISODate(data.reportDate) || new Date();
+        const dateStr = formatDateThai(date);
+
         // Header
         parts.push(`📅 รายงานวันที่: ${dateStr}`);
-        
-        if (data.workBom) {
-            parts.push(`🔖 Work BOM : ${data.workBom}`);
-        }
-        
-        if (data.projectName) {
-            parts.push(`🏷️ Project : ${data.projectName}`);
-        }
-        
-        if (data.workBom || data.projectName) {
-            parts.push(separator);
-        }
-        
-        // Tasks
-        parts.push('✅ **รายละเอียดงาน**');
-        
-        if (data.tasks.length > 0) {
-            let hasTasks = false;
-            
-            data.tasks.forEach((task, index) => {
-                if (task.detail) {
-                    hasTasks = true;
-                    const taskNumber = index + 1;
-                    parts.push(`${taskNumber}. ${task.detail}`);
-                    parts.push(`    Status: ${task.status}`);
-                    
-                    if (task.remark && task.remark !== '-') {
-                        parts.push(`    Remark: ${task.remark}`);
-                    }
-                }
-            });
-            
-            if (!hasTasks) {
-                parts.push('- ไม่มีรายการ -');
-            }
+        parts.push(`🔖 Work BOM : ${data.workBom || '-'}`);
+        parts.push(`🏷️ Project : ${data.projectName || '-'}`);
+        parts.push(SEPARATOR);
+
+        // Tasks (grouped by success/fail)
+        parts.push('🟢 **รายละเอียดงาน**');
+        const success = [];
+        const failed = [];
+        data.tasks.forEach((t) => {
+            if (!t.detail || !t.detail.trim()) return;
+            const status = (t.status || '').toUpperCase();
+            // OK → success, NG → failed, others (Pending/In Progress/Waiting/-) → success bucket
+            // because template only has 2 buckets. Tasks not OK/NG go to success-as-in-progress.
+            if (status === 'NG') failed.push(t);
+            else success.push(t);
+        });
+
+        let n = 0;
+        success.forEach((t) => {
+            n++;
+            const remark = t.remark && t.remark !== '-' ? ` — ${t.remark}` : '';
+            parts.push(`✅${n}. ${t.detail}${remark}`);
+        });
+        failed.forEach((t) => {
+            n++;
+            const remark = t.remark && t.remark !== '-' ? ` — ${t.remark}` : '';
+            parts.push(`❌${n}. ${t.detail}${remark}`);
+        });
+        if (n === 0) parts.push('- ไม่มีรายการ -');
+
+        parts.push(SEPARATOR);
+
+        // Tomorrow plans
+        parts.push('🔵 **แผนงานของวันพรุ่งนี้**');
+        const plans = data.tomorrowPlans.filter(p => p && p.trim());
+        if (plans.length === 0) {
+            parts.push('- ไม่มีแผน -');
         } else {
-            parts.push('- ไม่มีรายการ -');
+            plans.forEach((p, i) => parts.push(`${i + 1}. ${p}`));
         }
-        
+
+        parts.push(SEPARATOR);
+
         // Problems
-        if (data.problems) {
-            parts.push(separator);
-            parts.push('📌 **ปัญหา**');
-            parts.push(data.problems);
+        parts.push('🔴 **แจ้งปัญหา และทางเลือกในการแก้ไข**');
+        const problems = data.problemsList.filter(p => (p.problem && p.problem.trim()) || (p.solution && p.solution.trim()));
+        if (problems.length === 0) {
+            parts.push('- ไม่มี -');
+        } else {
+            problems.forEach((p, i) => {
+                parts.push(`⛔${i + 1}. ปัญหาที่พบ: ${p.problem || '-'}`);
+                parts.push(`🛠️ วิธีแก้ไข: ${p.solution || '-'}`);
+            });
         }
-        
+
+        parts.push(SEPARATOR);
+
+        // Notes
+        parts.push('📋 **หมายเหตุ**');
+        const help = (data.helpNeeded || '').trim();
+        const sug = (data.suggestions || '').trim();
+        parts.push(`1. ต้องการความช่วยเหลือ: ${help || '-'}`);
+        parts.push(`2. ข้อเสนอแนะ: ${sug || '-'}`);
+
         return parts.join('\n').trim();
     }
 
-    /**
-     * Save current state to localStorage
-     */
     save() {
         const data = this.getState();
         storageManager.saveReportData(data);
     }
 
-    /**
-     * Load state from localStorage
-     * @returns {boolean} - Success status
-     */
     load() {
         const data = storageManager.loadReportData();
-        
+
         if (data) {
+            // Backward compatibility: convert old single `problems` string to list
+            let problemsList = data.problemsList;
+            if (!Array.isArray(problemsList) && typeof data.problems === 'string' && data.problems.trim()) {
+                problemsList = [{ problem: data.problems.trim(), solution: '' }];
+            }
+
             this.state = {
+                reportDate: data.reportDate || formatDateISO(new Date()),
                 workBom: data.workBom || '',
                 projectName: data.projectName || '',
-                problems: data.problems || ''
+                tomorrowPlans: Array.isArray(data.tomorrowPlans) ? data.tomorrowPlans : [],
+                problemsList: Array.isArray(problemsList) ? problemsList : [],
+                helpNeeded: data.helpNeeded || '',
+                suggestions: data.suggestions || ''
             };
-            
+
             if (data.tasks && data.tasks.length > 0) {
                 taskManager.setTasks(data.tasks);
             } else {
-                taskManager.addTask(); // Add one empty task
+                taskManager.addTask();
             }
-            
+
             this.notifyListeners();
             return true;
         }
-        
-        // No saved data, start with one empty task
+
         taskManager.addTask();
         return false;
     }
 
-    /**
-     * Save to history
-     * @returns {boolean} - Success status
-     */
     saveToHistory() {
         const data = this.getState();
         return storageManager.saveToHistory(data);
     }
 
-    /**
-     * Restore from history item
-     * @param {Object} historyData - History data
-     */
     restoreFromHistory(historyData) {
+        // BC for old `problems` string
+        let problemsList = historyData.problemsList;
+        if (!Array.isArray(problemsList) && typeof historyData.problems === 'string' && historyData.problems.trim()) {
+            problemsList = [{ problem: historyData.problems.trim(), solution: '' }];
+        }
+
         this.state = {
+            reportDate: historyData.reportDate || formatDateISO(new Date()),
             workBom: historyData.workBom || '',
             projectName: historyData.projectName || '',
-            problems: historyData.problems || ''
+            tomorrowPlans: Array.isArray(historyData.tomorrowPlans) ? historyData.tomorrowPlans : [],
+            problemsList: Array.isArray(problemsList) ? problemsList : [],
+            helpNeeded: historyData.helpNeeded || '',
+            suggestions: historyData.suggestions || ''
         };
-        
+
         if (historyData.tasks && historyData.tasks.length > 0) {
             taskManager.setTasks(historyData.tasks);
         } else {
             taskManager.clearTasks();
             taskManager.addTask();
         }
-        
+
         this.notifyListeners();
         this.save();
     }
 
     /**
-     * Clear only tasks and problems
+     * Clear only tasks/plans/problems/notes — keep header (date/bom/project)
      */
     clearTasks() {
-        this.state.problems = '';
+        this.state.tomorrowPlans = [];
+        this.state.problemsList = [];
+        this.state.helpNeeded = '';
+        this.state.suggestions = '';
         taskManager.clearTasks();
         taskManager.addTask();
-        
+
         this.notifyListeners();
         this.save();
     }
 
-    /**
-     * Reset all data
-     */
     resetAll() {
         this.state = {
+            reportDate: formatDateISO(new Date()),
             workBom: '',
             projectName: '',
-            problems: ''
+            tomorrowPlans: [],
+            problemsList: [],
+            helpNeeded: '',
+            suggestions: ''
         };
-        
+
         taskManager.clearTasks();
         taskManager.addTask();
-        
+
         this.notifyListeners();
         this.save();
     }
 
-    /**
-     * Get summary statistics
-     * @returns {Object} - Summary data
-     */
     getSummary() {
         return {
             hasWorkBom: !!this.state.workBom,
             hasProjectName: !!this.state.projectName,
-            hasProblems: !!this.state.problems,
             tasksSummary: taskManager.getSummary()
         };
     }
 
-    /**
-     * Export report data
-     * @returns {Object} - Export data
-     */
     export() {
         return {
-            version: '1.0',
+            version: '2.0',
             exportDate: new Date().toISOString(),
             data: this.getState()
         };
     }
 
-    /**
-     * Import report data
-     * @param {Object} importData - Import data
-     * @returns {boolean} - Success status
-     */
     import(importData) {
         try {
-            if (!importData.data) {
-                throw new Error('Invalid import format');
-            }
-            
-            const data = importData.data;
-            
-            this.state = {
-                workBom: data.workBom || '',
-                projectName: data.projectName || '',
-                problems: data.problems || ''
-            };
-            
-            if (data.tasks) {
-                taskManager.setTasks(data.tasks);
-            }
-            
-            this.notifyListeners();
-            this.save();
-            
+            if (!importData.data) throw new Error('Invalid import format');
+            this.restoreFromHistory(importData.data);
             return true;
         } catch (error) {
             console.error('Import failed:', error);
@@ -310,5 +315,4 @@ class ReportManager {
     }
 }
 
-// Export singleton instance
 export const reportManager = new ReportManager();
