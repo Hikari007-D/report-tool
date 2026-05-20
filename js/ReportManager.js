@@ -198,7 +198,8 @@ class ReportManager {
             }
 
             this.state = {
-                reportDate: data.reportDate || formatDateISO(new Date()),
+                // Always default to TODAY on load — user picks another date if needed
+                reportDate: formatDateISO(new Date()),
                 workBom: data.workBom || '',
                 projectName: data.projectName || '',
                 tomorrowPlans: Array.isArray(data.tomorrowPlans) ? data.tomorrowPlans : [],
