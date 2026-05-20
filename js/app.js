@@ -14,6 +14,27 @@ import {
   escapeHTML,
   formatDateISO,
 } from "./utils.js";
+import { burst as confettiBurst } from "./Confetti.js";
+
+// Rotating success messages
+const SUCCESS_MESSAGES = [
+  "✅ คัดลอกเรียบร้อยพร้อมวาง!",
+  "✨ ก๊อปเรียบร้อย พร้อมส่งเลย!",
+  "🚀 ส่งรายงานได้เลย ขยันมาก!",
+  "💪 รายงานพร้อมส่ง สู้ ๆ!",
+  "🎯 เป๊ะ! คัดลอกแล้ว",
+  "👏 รายงานดีมาก คัดลอกแล้ว",
+];
+
+function timeGreeting() {
+  const h = new Date().getHours();
+  if (h < 6) return "ดึกแล้วครับ พักก่อนไหม 🌙";
+  if (h < 12) return "อรุณสวัสดิ์ครับ ☀️";
+  if (h < 13) return "เที่ยงแล้ว ทานข้าวรึยัง 🍱";
+  if (h < 17) return "สวัสดีตอนบ่ายครับ ☕";
+  if (h < 20) return "เย็นแล้ว ขยันจริง ๆ 🌆";
+  return "ดีค่ำครับ 🌙";
+}
 
 class App {
   constructor() {
@@ -66,6 +87,14 @@ class App {
       confirmModalBtn: document.getElementById("confirmModalBtn"),
       cancelModalBtn: document.getElementById("cancelModalBtn"),
       closeHistoryBtn: document.getElementById("closeHistoryBtn"),
+
+      // Flourishes
+      greeting: document.getElementById("greeting"),
+      saveBadge: document.getElementById("saveBadge"),
+      statSuccess: document.getElementById("statSuccess"),
+      statFail: document.getElementById("statFail"),
+      statPlan: document.getElementById("statPlan"),
+      statProblem: document.getElementById("statProblem"),
     };
   }
 
@@ -133,9 +162,16 @@ class App {
       this.updateFormFromState(state);
       this.renderPlans();
       this.renderProblems();
+      this.updateStats();
+      this.flashSaveBadge();
     });
     const savedTheme = storageManager.getTheme();
     uiManager.updateTheme(savedTheme);
+
+    // Greeting based on current time
+    if (this.elements.greeting) {
+      this.elements.greeting.textContent = timeGreeting();
+    }
   }
 
   loadInitialData() {
@@ -143,6 +179,54 @@ class App {
     this.renderTasks();
     this.renderPlans();
     this.renderProblems();
+    this.updateStats();
+
+    // Also recompute stats on task input (TaskManager doesn't fire onChange to App)
+    document.getElementById("task-list")?.addEventListener("input", () => {
+      this.updateStats();
+    });
+  }
+
+  // --- Live stats ---
+  updateStats() {
+    const state = reportManager.getState();
+    let success = 0;
+    let fail = 0;
+    (state.tasks || []).forEach((t) => {
+      if (!t.detail || !t.detail.trim()) return;
+      if ((t.status || "").toUpperCase() === "NG") fail++;
+      else success++;
+    });
+    const planCount = (state.tomorrowPlans || []).filter((p) => p && p.trim()).length;
+    const probCount = (state.problemsList || []).filter(
+      (p) => (p.problem && p.problem.trim()) || (p.solution && p.solution.trim()),
+    ).length;
+
+    this.setStat("statSuccess", success);
+    this.setStat("statFail", fail);
+    this.setStat("statPlan", planCount);
+    this.setStat("statProblem", probCount);
+  }
+
+  setStat(id, value) {
+    const el = this.elements[id] || document.getElementById(id);
+    if (!el) return;
+    const prev = el.textContent;
+    if (String(prev) !== String(value)) {
+      el.textContent = value;
+      el.classList.remove("stat-bump");
+      // Force reflow to restart animation
+      void el.offsetWidth;
+      el.classList.add("stat-bump");
+    }
+  }
+
+  flashSaveBadge() {
+    const badge = this.elements.saveBadge;
+    if (!badge) return;
+    badge.classList.remove("flash");
+    void badge.offsetWidth;
+    badge.classList.add("flash");
   }
 
   // --- Tasks ---
@@ -245,10 +329,28 @@ class App {
     if (this.elements.output) this.elements.output.value = reportText;
 
     const success = await copyToClipboard(reportText);
-    uiManager.showToast(
-      success ? "✅ คัดลอกเรียบร้อยพร้อมวาง!" : "❌ ไม่สามารถคัดลอกได้",
-      3000,
-    );
+    if (success) {
+      // Rotating motivational message
+      const msg = SUCCESS_MESSAGES[Math.floor(Math.random() * SUCCESS_MESSAGES.length)];
+      uiManager.showToast(msg, 3000);
+
+      // Confetti origin = copy button position
+      const btn = this.elements.copyButton;
+      const rect = btn ? btn.getBoundingClientRect() : null;
+      const ox = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+      const oy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+
+      // Bonus burst: extra particles if the report is "fully done" (no NG, has tasks)
+      const state = reportManager.getState();
+      const hasTasks = (state.tasks || []).some((t) => t.detail && t.detail.trim());
+      const hasFails = (state.tasks || []).some(
+        (t) => (t.status || "").toUpperCase() === "NG" && t.detail && t.detail.trim(),
+      );
+      const count = hasTasks && !hasFails ? 120 : 60;
+      confettiBurst(ox, oy, count);
+    } else {
+      uiManager.showToast("❌ ไม่สามารถคัดลอกได้", 3000);
+    }
   }
 
   // --- Share LINE ---

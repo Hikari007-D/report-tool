@@ -49,6 +49,39 @@
 
       <h1>📝 เครื่องมือสร้างรีพอร์ต</h1>
 
+      <!-- Greeting + Auto-save badge -->
+      <div class="subheader">
+        <span id="greeting" class="greeting">สวัสดีครับ 👋</span>
+        <span id="saveBadge" class="save-badge" aria-live="polite">
+          <span class="save-dot"></span>
+          <span class="save-text">บันทึกอัตโนมัติ</span>
+        </span>
+      </div>
+
+      <!-- Live Stats Pill Bar -->
+      <div class="stats-bar" id="statsBar" aria-label="สรุปจำนวนรายการ">
+        <div class="stat-pill stat-success">
+          <span class="stat-icon">✅</span>
+          <span class="stat-value" id="statSuccess">0</span>
+          <span class="stat-label">สำเร็จ</span>
+        </div>
+        <div class="stat-pill stat-fail">
+          <span class="stat-icon">❌</span>
+          <span class="stat-value" id="statFail">0</span>
+          <span class="stat-label">ไม่สำเร็จ</span>
+        </div>
+        <div class="stat-pill stat-plan">
+          <span class="stat-icon">🔵</span>
+          <span class="stat-value" id="statPlan">0</span>
+          <span class="stat-label">แผน</span>
+        </div>
+        <div class="stat-pill stat-problem">
+          <span class="stat-icon">⛔</span>
+          <span class="stat-value" id="statProblem">0</span>
+          <span class="stat-label">ปัญหา</span>
+        </div>
+      </div>
+
       <!-- Report Date -->
       <div class="form-group">
         <label for="reportDate">📅 รายงานวันที่</label>
